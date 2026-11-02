@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy
+      - run: uv run pytest
+
+  cpp:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libopencv-dev
+      - run: uv sync --frozen
+      - run: uv run sdi parity-fixture "$RUNNER_TEMP/fixture"
+      - run: cmake -S cpp -B build -DSDI_FIXTURE="$RUNNER_TEMP/fixture"
+      - run: cmake --build build -j
+      - run: ctest --test-dir build --output-on-failure

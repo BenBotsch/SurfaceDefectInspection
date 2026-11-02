@@ -1,0 +1,77 @@
+[project]
+name = "surface-defect-inspection"
+version = "0.1.0"
+description = "Steel surface defect classification on NEU-DET: OpenCV preprocessing, a HOG baseline, ResNet18, ONNX export and C++ inference."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "httpx>=0.28",
+    "numpy>=2.0",
+    "onnx>=1.17",
+    "onnxruntime>=1.20",
+    # OpenCV 5 drops HOGDescriptor; 4.x also matches the C++ build on Ubuntu.
+    "opencv-python-headless>=4.10,<5",
+    "scikit-learn>=1.6",
+    "torch>=2.7",
+    "torchvision>=0.22",
+]
+
+[project.scripts]
+sdi = "sdi.cli:main"
+
+[dependency-groups]
+dev = ["mypy>=1.15", "pytest>=8.3", "ruff>=0.11"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sdi"]
+
+# CUDA wheels on Windows for local training, CPU wheels on Linux for CI and Docker.
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cu126", marker = "sys_platform == 'win32'" },
+    { index = "pytorch-cpu", marker = "sys_platform == 'linux'" },
+]
+torchvision = [
+    { index = "pytorch-cu126", marker = "sys_platform == 'win32'" },
+    { index = "pytorch-cpu", marker = "sys_platform == 'linux'" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "PL", "RUF", "D"]
+ignore = ["PLR2004", "D100", "D104", "D105", "D107"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D", "PLR2004"]
+
+[tool.mypy]
+strict = true
+files = ["src", "tests"]
+
+[[tool.mypy.overrides]]
+module = ["cv2.*", "onnxruntime.*", "sklearn.*", "torchvision.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
