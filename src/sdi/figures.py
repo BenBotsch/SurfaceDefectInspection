@@ -366,3 +366,49 @@ def gradcam_figure(explanations: Sequence[Explanation]) -> Callable[[Theme], Fig
         return figure
 
     return draw
+
+
+def robustness_figure(data: dict[str, Any]) -> Callable[[Theme], Figure]:
+    """Accuracy over corruption level, one panel per corruption, one line per model.
+
+    ``data`` is ``results/robustness.json``. The INT8 line is dashed with its own marker, because
+    it often lies on top of the float model.
+    """
+    models: list[str] = data["models"]
+    slots = {"ResNet18": RESNET, "HOG + linear SVM": BASELINE}
+    styles = {RESNET: ("o", "-"), BASELINE: ("s", "-"), THIRD: ("^", "--")}
+
+    def draw(theme: Theme) -> Figure:
+        panels = data["robustness"]
+        figure, axes = plt.subplots(1, len(panels), figsize=(2.15 * len(panels), 3.0), sharey=True)
+        for ax, panel in zip(np.atleast_1d(axes), panels, strict=True):
+            levels = range(len(panel["strengths"]))
+            for name in models:
+                slot = slots.get(name, THIRD)
+                marker, line = styles[slot]
+                ax.plot(
+                    levels,
+                    panel["accuracy"][name],
+                    color=theme.series[slot],
+                    marker=marker,
+                    linestyle=line,
+                    label=name,
+                )
+            ax.axhline(1 / 6, color=theme.muted, linestyle=":", linewidth=1, zorder=0)
+            ax.set_title(panel["name"], fontsize=10)
+            ax.set_xticks(list(levels), [f"{s:g}" for s in panel["strengths"]])
+            ax.set_xlabel(panel["parameter"])
+            ax.set_ylim(0, 1.03)
+            ax.yaxis.grid(True)
+            ax.set_axisbelow(True)
+        first = np.atleast_1d(axes)[0]
+        first.set_ylabel("test accuracy")
+        first.text(0, 1 / 6 + 0.02, "chance", fontsize=7.5, color=theme.muted)
+        handles, labels = first.get_legend_handles_labels()
+        figure.legend(
+            handles, labels, loc="upper left", bbox_to_anchor=(0.0, 1.08), ncol=len(models)
+        )
+        figure.tight_layout(w_pad=1.2)
+        return figure
+
+    return draw

@@ -10,17 +10,17 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVC
 
 from sdi.dataset import Sample
-from sdi.preprocess import read_gray
+from sdi.preprocess import Image, read_gray
 
 # 128 x 128 window, 16-pixel blocks with 8-pixel stride, 9 orientation bins: 8100 features.
 _HOG = cv2.HOGDescriptor((128, 128), (16, 16), (8, 8), (8, 8), 9)
 
 
-def hog_features(samples: Sequence[Sample]) -> npt.NDArray[np.float32]:
-    """One HOG vector per image, computed on the image scaled to 128 x 128."""
+def hog_features(images: Sequence[Image]) -> npt.NDArray[np.float32]:
+    """One HOG vector per greyscale image, computed on the image scaled to 128 x 128."""
     rows = [
-        _HOG.compute(cv2.resize(read_gray(s.path), (128, 128), interpolation=cv2.INTER_AREA))
-        for s in samples
+        _HOG.compute(cv2.resize(image, (128, 128), interpolation=cv2.INTER_AREA))
+        for image in images
     ]
     return np.stack([np.ravel(r) for r in rows]).astype(np.float32)
 
@@ -35,8 +35,13 @@ class HogSvm:
 
     def fit(self, samples: Sequence[Sample]) -> None:
         """Train on the samples."""
-        self._pipeline.fit(hog_features(samples), [s.label for s in samples])
+        images = [read_gray(s.path) for s in samples]
+        self._pipeline.fit(hog_features(images), [s.label for s in samples])
 
     def predict(self, samples: Sequence[Sample]) -> list[int]:
         """Predicted class index per sample."""
-        return [int(p) for p in self._pipeline.predict(hog_features(samples))]
+        return self.predict_images([read_gray(s.path) for s in samples])
+
+    def predict_images(self, images: Sequence[Image]) -> list[int]:
+        """Predicted class index per greyscale image."""
+        return [int(p) for p in self._pipeline.predict(hog_features(images))]

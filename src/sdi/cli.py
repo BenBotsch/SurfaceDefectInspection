@@ -3,6 +3,7 @@
 import argparse
 import json
 import platform
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -27,8 +28,9 @@ from sdi.metrics import (
     summarize_seeds,
     to_markdown,
 )
-from sdi.preprocess import read_gray, to_tensor
-from sdi.train import TrainConfig, load, probabilities, train
+from sdi.preprocess import Image, read_gray, to_tensor
+from sdi.robustness import evaluate_robustness, robustness_to_markdown
+from sdi.train import TrainConfig, image_probabilities, load, probabilities, train
 
 DATA = Path("data/neu-det")
 RUNS = Path("runs")
@@ -66,6 +68,8 @@ def render(data: dict[str, Any]) -> str | None:
         return seeds_to_markdown(data["model"], summary)
     if "benchmark" in data:
         return benchmark_to_markdown(data["benchmark"], data["note"])
+    if "robustness" in data:
+        return robustness_to_markdown(data)
     return None
 
 
@@ -236,12 +240,8 @@ def _megabytes(path: Path) -> float:
 def _benchmark(data: Path, run_dir: Path, iterations: int) -> None:
     test = load_split(data, "test")
     truth = [s.label for s in test]
+    int8 = _int8_model(data, run_dir)
     fp32 = run_dir / "model.onnx"
-    if not fp32.is_file():
-        export_onnx(load(run_dir / "model.pt"), fp32)
-    int8 = quantize_onnx(
-        fp32, run_dir / "model_int8.onnx", calibration_samples(load_split(data, "train"))
-    )
     int8_predicted, _ = OnnxClassifier(int8).predict(test)
     _write(
         evaluate("ResNet18 (ONNX INT8)", "test", CLASSES, truth, int8_predicted), "resnet18_int8"
@@ -296,6 +296,42 @@ def _ms(timing: Timing) -> tuple[float, float]:
     return timing.median_ms, timing.p95_ms
 
 
+def _int8_model(data: Path, run_dir: Path) -> Path:
+    fp32, int8 = run_dir / "model.onnx", run_dir / "model_int8.onnx"
+    if not fp32.is_file():
+        export_onnx(load(run_dir / "model.pt"), fp32)
+    return quantize_onnx(fp32, int8, calibration_samples(load_split(data, "train")))
+
+
+def _robustness(data: Path, run_dir: Path) -> None:
+    from sdi import figures  # noqa: PLC0415
+
+    test = load_split(data, "test")
+    svm = HogSvm()
+    svm.fit(load_split(data, "train"))
+    model = load(run_dir / "model.pt", _device())
+    int8 = OnnxClassifier(_int8_model(data, run_dir))
+
+    def resnet(images: Sequence[Image]) -> list[int]:
+        return [int(i) for i in image_probabilities(model, images, _device()).argmax(axis=1)]
+
+    def quantised(images: Sequence[Image]) -> list[int]:
+        tensors = np.stack([to_tensor(i) for i in images])
+        return [int(i) for i in int8.probabilities(tensors).argmax(axis=1)]
+
+    result = evaluate_robustness(
+        [read_gray(s.path) for s in test],
+        [s.label for s in test],
+        {"HOG + linear SVM": svm.predict_images, "ResNet18": resnet, "ResNet18 INT8": quantised},
+    )
+    _write_json("robustness", result)
+    markdown = robustness_to_markdown(result)
+    write_text(RESULTS / "robustness.md", markdown + "\n")
+    print(markdown)
+    for path in figures.render(FIGURES, "robustness", figures.robustness_figure(result)):
+        print(f"wrote {path}")
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="sdi", description="Steel surface defect classification on NEU-DET."
@@ -324,38 +360,48 @@ def _parser() -> argparse.ArgumentParser:
     )
     bench_cmd.add_argument("--run-dir", type=Path, default=RUNS)
     bench_cmd.add_argument("--iterations", type=int, default=200)
+    robust_cmd = sub.add_parser(
+        "robustness", help="accuracy of all models on corrupted test images"
+    )
+    robust_cmd.add_argument("--run-dir", type=Path, default=RUNS)
     fixture = sub.add_parser("parity-fixture", help="write the fixture of the C++ parity test")
     fixture.add_argument("directory", type=Path)
     return parser
 
 
+def _download(args: argparse.Namespace) -> None:
+    fetched = download(args.data, progress=lambda n: print(f"\r{n} files checked", end=""))
+    print(f"\n{fetched} files downloaded to {args.data}")
+
+
+def _train(args: argparse.Namespace) -> None:
+    config = TrainConfig(epochs=args.epochs, seed=args.seed)
+    train(load_split(args.data, "train"), load_split(args.data, "val"), args.run_dir, config)
+
+
+def _report(args: argparse.Namespace) -> None:
+    stale = report(args.check)
+    if args.check and stale:
+        raise SystemExit(f"{stale} results file(s) are stale; run `sdi report`")
+
+
+COMMANDS: dict[str, Callable[[argparse.Namespace], object]] = {
+    "download": _download,
+    "baseline": lambda a: _baseline(a.data),
+    "train": _train,
+    "evaluate": lambda a: _evaluate(a.data, a.run_dir),
+    "seeds": lambda a: _seeds(a.data, a.run_dirs),
+    "export": lambda a: print(export_onnx(load(a.run_dir / "model.pt"), a.run_dir / "model.onnx")),
+    "report": _report,
+    "figures": lambda a: _figures(a.data),
+    "gradcam": lambda a: _gradcam(a.data, a.run_dir),
+    "benchmark": lambda a: _benchmark(a.data, a.run_dir, a.iterations),
+    "robustness": lambda a: _robustness(a.data, a.run_dir),
+    "parity-fixture": lambda a: print(parity_fixture(a.directory)),
+}
+
+
 def main(argv: list[str] | None = None) -> None:
     """Run one command."""
     args = _parser().parse_args(argv)
-
-    if args.command == "download":
-        fetched = download(args.data, progress=lambda n: print(f"\r{n} files checked", end=""))
-        print(f"\n{fetched} files downloaded to {args.data}")
-    elif args.command == "baseline":
-        _baseline(args.data)
-    elif args.command == "train":
-        config = TrainConfig(epochs=args.epochs, seed=args.seed)
-        train(load_split(args.data, "train"), load_split(args.data, "val"), args.run_dir, config)
-    elif args.command == "evaluate":
-        _evaluate(args.data, args.run_dir)
-    elif args.command == "seeds":
-        _seeds(args.data, args.run_dirs)
-    elif args.command == "export":
-        print(export_onnx(load(args.run_dir / "model.pt"), args.run_dir / "model.onnx"))
-    elif args.command == "report":
-        stale = report(args.check)
-        if args.check and stale:
-            raise SystemExit(f"{stale} results file(s) are stale; run `sdi report`")
-    elif args.command == "figures":
-        _figures(args.data)
-    elif args.command == "gradcam":
-        _gradcam(args.data, args.run_dir)
-    elif args.command == "benchmark":
-        _benchmark(args.data, args.run_dir, args.iterations)
-    elif args.command == "parity-fixture":
-        print(parity_fixture(args.directory))
+    COMMANDS[args.command](args)

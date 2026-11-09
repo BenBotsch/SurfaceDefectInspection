@@ -16,7 +16,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from sdi.dataset import CLASSES, Sample
 from sdi.model import build_model
-from sdi.preprocess import augment, read_gray, to_tensor
+from sdi.preprocess import Image, augment, read_gray, to_tensor
 
 
 @dataclass(frozen=True, slots=True)
@@ -60,12 +60,20 @@ def probabilities(
     model: nn.Module, samples: Sequence[Sample], device: torch.device
 ) -> npt.NDArray[np.float32]:
     """Softmax probabilities, one row per sample and one column per class."""
+    return image_probabilities(model, [read_gray(s.path) for s in samples], device)
+
+
+def image_probabilities(
+    model: nn.Module, images: Sequence[Image], device: torch.device, batch_size: int = 64
+) -> npt.NDArray[np.float32]:
+    """Softmax probabilities, one row per greyscale image and one column per class."""
     model.eval()
-    loader = DataLoader(ImageDataset(samples), batch_size=64)
     out: list[npt.NDArray[np.float32]] = []
     with torch.no_grad():
-        for images, _ in loader:
-            out.append(torch.softmax(model(images.to(device)), dim=1).cpu().numpy())
+        for start in range(0, len(images), batch_size):
+            batch = np.stack([to_tensor(i) for i in images[start : start + batch_size]])
+            scores = model(torch.from_numpy(batch).to(device))
+            out.append(torch.softmax(scores, dim=1).cpu().numpy())
     return np.concatenate(out).astype(np.float32)
 
 
