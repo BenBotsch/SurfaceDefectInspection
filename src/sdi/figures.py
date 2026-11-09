@@ -4,11 +4,16 @@ Every figure is written twice, ``<name>.png`` for a light page and ``<name>-dark
 one, so the README can pick the right one with ``<picture>``. The colours come from a categorical
 palette whose first three slots were checked for colour-vision-deficiency separation in both
 modes. Lines carry markers and direct labels, so no series is told apart by colour alone.
+
+:data:`WEB` is a second output for web pages. Charts are SVG and photographs WebP, both on a
+transparent background, and every figure is scaled to at most :data:`WEB_WIDTH` inches so that
+its text grows when the page shows it in a wider column.
 """
 
+import math
 from collections.abc import Callable, Iterator, Sequence
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -110,23 +115,76 @@ def styled(theme: Theme) -> Iterator[None]:
         yield
 
 
-def save(figure: Figure, directory: Path, name: str, theme: Theme) -> Path:
-    """Write the figure as ``name.png`` (light) or ``name-dark.png`` and close it."""
+@dataclass(frozen=True, slots=True)
+class Output:
+    """How a figure is written.
+
+    Attributes:
+        format: ``png``, ``svg`` or ``webp``.
+        dpi: Resolution of raster formats, ignored when ``pixels`` is set.
+        transparent: Leave the background empty instead of filling it with the theme surface.
+        width: Largest figure width in inches. A wider figure is scaled down to it, which makes
+            its text larger relative to the figure.
+        pixels: Width of a raster image in pixels, for a fixed size independent of the figure.
+    """
+
+    format: str = "png"
+    dpi: float = 150
+    transparent: bool = False
+    width: float | None = None
+    pixels: int | None = None
+
+
+README = Output()
+# 6.4 inches shown in a column of 800 CSS pixels enlarges 9 pt text to about 15 px, and 1600 pixels
+# keep photographs sharp at twice that column width.
+WEB_WIDTH = 6.4
+WEB = Output(format="svg", transparent=True, width=WEB_WIDTH)
+WEB_PHOTO = Output(format="webp", transparent=True, width=WEB_WIDTH, pixels=1600)
+
+
+# Metadata without dates or versions, so that the files only change with their content.
+_SAVE_OPTIONS: dict[str, dict[str, Any]] = {
+    "png": {"metadata": {"Software": None}},
+    "svg": {"metadata": {"Date": None, "Creator": None}},
+    "webp": {"pil_kwargs": {"quality": 88, "method": 6}},
+}
+
+
+def save(figure: Figure, directory: Path, name: str, theme: Theme, output: Output = README) -> Path:
+    """Write the figure as ``name.<format>`` (light) or ``name-dark.<format>`` and close it."""
     directory.mkdir(parents=True, exist_ok=True)
-    path = directory / f"{name}{'' if theme is LIGHT else '-dark'}.png"
-    figure.savefig(path, dpi=150, bbox_inches="tight", pad_inches=0.15, metadata={"Software": None})
+    path = directory / f"{name}{'-dark' if theme.name == 'dark' else ''}.{output.format}"
+    width, height = figure.get_size_inches()
+    if output.width is not None and width > output.width:
+        figure.set_size_inches(output.width, height * output.width / width)
+    pad = 0.15
+    dpi = output.dpi
+    if output.pixels is not None:
+        # The saved image is the tight bounding box plus padding, not the whole figure.
+        figure.draw_without_rendering()
+        dpi = output.pixels / (figure.get_tightbbox().width + 2 * pad)
+    figure.savefig(
+        path, dpi=dpi, bbox_inches="tight", pad_inches=pad, **_SAVE_OPTIONS[output.format]
+    )
     plt.close(figure)
     return path
 
 
 def render(
-    directory: Path, name: str, draw: Callable[[Theme], Figure], themes: Sequence[Theme] = THEMES
+    directory: Path,
+    name: str,
+    draw: Callable[[Theme], Figure],
+    themes: Sequence[Theme] = THEMES,
+    output: Output = README,
 ) -> list[Path]:
     """Draw one figure in every theme and save it."""
     paths = []
     for theme in themes:
-        with styled(theme):
-            paths.append(save(draw(theme), directory, name, theme))
+        if output.transparent:
+            theme = replace(theme, surface="none")  # noqa: PLW2901
+        with styled(theme), plt.rc_context({"svg.hashsalt": name}):
+            paths.append(save(draw(theme), directory, name, theme, output))
     return paths
 
 
@@ -180,7 +238,7 @@ def confusion_figure(reports: Sequence[Report]) -> Callable[[Theme], Figure]:
         for ax, report in zip(np.atleast_1d(axes), reports, strict=True):
             counts = np.asarray(report.confusion)
             rates = counts / counts.sum(axis=1, keepdims=True)
-            ax.imshow(rates, cmap=cmap, vmin=0, vmax=1)
+            ax.imshow(rates, cmap=cmap, vmin=0, vmax=1, interpolation="none")
             names = [abbreviate(c.name) for c in report.classes]
             ax.set_xticks(range(len(names)), names)
             ax.set_yticks(range(len(names)), names)
@@ -200,8 +258,9 @@ def confusion_figure(reports: Sequence[Report]) -> Callable[[Theme], Figure]:
                     )
             ax.set_xlabel("predicted")
             ax.set_ylabel("true")
-            ax.set_title(f"{report.model}  ·  accuracy {report.accuracy:.3f}")
-        figure.tight_layout(w_pad=2.5)
+            # Two lines, so that the titles of neighbouring panels do not meet on narrow pages.
+            ax.set_title(f"{report.model}\naccuracy {report.accuracy:.3f}", linespacing=1.4)
+        figure.set_layout_engine("tight", w_pad=2.5)
         return figure
 
     return draw
@@ -250,7 +309,7 @@ def per_class_figure(baseline: Report, model: Report) -> Callable[[Theme], Figur
         ax.set_xlabel("F1 on the test split")
         ax.set_title("Per-class F1")
         ax.legend(loc="lower right", bbox_to_anchor=(1.0, 1.0), ncol=2, handlelength=1.2)
-        figure.tight_layout()
+        figure.set_layout_engine("tight")
         return figure
 
     return draw
@@ -282,7 +341,7 @@ def training_figure(histories: dict[int, list[dict[str, float]]]) -> Callable[[T
             ax.set_axisbelow(True)
             ax.set_xlim(0.5, max(len(h) for h in histories.values()) + 0.5)
         f1_ax.legend(loc="lower right", handlelength=1.6)
-        figure.tight_layout(w_pad=3)
+        figure.set_layout_engine("tight", w_pad=3)
         return figure
 
     return draw
@@ -313,7 +372,7 @@ def errors_figure(errors: Sequence[Prediction]) -> Callable[[Theme], Figure]:
                 color=theme.secondary,
                 linespacing=1.5,
             )
-        figure.tight_layout()
+        figure.set_layout_engine("tight")
         return figure
 
     return draw
@@ -329,50 +388,64 @@ class Explanation:
     cam: npt.NDArray[np.float32]
 
 
-def gradcam_figure(explanations: Sequence[Explanation]) -> Callable[[Theme], Figure]:
+def gradcam_figure(
+    explanations: Sequence[Explanation], columns: int | None = None
+) -> Callable[[Theme], Figure]:
     """Each image above its Grad-CAM overlay, one column per image.
 
-    The map uses ``inferno``, a perceptually uniform sequential colormap, over the image in grey.
+    With ``columns``, the images wrap into rows of that many, for narrow pages. The map uses
+    ``inferno``, a perceptually uniform sequential colormap, over the image in grey.
     """
+    n = len(explanations)
+    per_row = min(columns or n, n)
+    rows = math.ceil(n / per_row)
 
     def draw(theme: Theme) -> Figure:
-        n, gap, left, right, bottom_margin, top_margin = (
-            len(explanations),
-            0.06,
-            0.01,
-            0.99,
-            0.13,
-            0.9,
-        )
-        width = 1.45 * n
+        gap, left, right, bottom_margin, top_margin = 0.06, 0.01, 0.99, 0.13, 0.9
+        width = 1.45 * per_row
         # Height at which square images fill the grid without empty bands between the rows.
-        cell = width * (right - left) / (n + (n - 1) * gap)
+        cell = width * (right - left) / (per_row + (per_row - 1) * gap)
         height = cell * (2 + gap) / (top_margin - bottom_margin)
-        figure, axes = plt.subplots(2, n, figsize=(width, height), squeeze=False)
-        for col, item in enumerate(explanations):
-            size = item.cam.shape[::-1]
-            image = cv2.resize(read_gray(item.path), size, interpolation=cv2.INTER_LINEAR)
-            top, bottom = axes[0, col], axes[1, col]
-            top.imshow(image, cmap="gray", vmin=0, vmax=255)
-            bottom.imshow(image, cmap="gray", vmin=0, vmax=255)
-            bottom.imshow(item.cam, cmap="inferno", vmin=0, vmax=1, alpha=0.5)
-            _image_axes(top)
-            _image_axes(bottom)
-            top.set_title(item.title, loc="center", fontsize=8.5, color=theme.ink)
-            bottom.set_xlabel(item.caption, fontsize=7.5, color=theme.secondary, linespacing=1.4)
-        figure.subplots_adjust(
-            left=left, right=right, bottom=bottom_margin, top=top_margin, wspace=gap, hspace=gap
-        )
+        figure = plt.figure(figsize=(width, height * rows))
+        bands = figure.subfigures(rows, 1, squeeze=False)
+        for band_index, band in enumerate(bands.flat):
+            axes = band.subplots(2, per_row, squeeze=False)
+            items = explanations[band_index * per_row : (band_index + 1) * per_row]
+            for col in range(per_row):
+                top, bottom = axes[0, col], axes[1, col]
+                _image_axes(top)
+                _image_axes(bottom)
+                if col >= len(items):
+                    top.set_visible(False)
+                    bottom.set_visible(False)
+                    continue
+                item = items[col]
+                size = item.cam.shape[::-1]
+                image = cv2.resize(read_gray(item.path), size, interpolation=cv2.INTER_LINEAR)
+                top.imshow(image, cmap="gray", vmin=0, vmax=255)
+                bottom.imshow(image, cmap="gray", vmin=0, vmax=255)
+                bottom.imshow(item.cam, cmap="inferno", vmin=0, vmax=1, alpha=0.5)
+                top.set_title(item.title, loc="center", fontsize=8.5, color=theme.ink)
+                bottom.set_xlabel(
+                    item.caption, fontsize=7.5, color=theme.secondary, linespacing=1.4
+                )
+            band.set_facecolor(theme.surface)
+            band.subplots_adjust(
+                left=left, right=right, bottom=bottom_margin, top=top_margin, wspace=gap, hspace=gap
+            )
         return figure
 
     return draw
 
 
-def robustness_figure(data: dict[str, Any]) -> Callable[[Theme], Figure]:
+def robustness_figure(
+    data: dict[str, Any], columns: int | None = None
+) -> Callable[[Theme], Figure]:
     """Accuracy over corruption level, one panel per corruption, one line per model.
 
     ``data`` is ``results/robustness.json``. The INT8 line is dashed with its own marker, because
-    it often lies on top of the float model.
+    it often lies on top of the float model. With ``columns``, the panels wrap into a grid, and
+    the legend takes the first free cell if there is one.
     """
     models: list[str] = data["models"]
     slots = {"ResNet18": RESNET, "HOG + linear SVM": BASELINE}
@@ -380,8 +453,14 @@ def robustness_figure(data: dict[str, Any]) -> Callable[[Theme], Figure]:
 
     def draw(theme: Theme) -> Figure:
         panels = data["robustness"]
-        figure, axes = plt.subplots(1, len(panels), figsize=(2.15 * len(panels), 3.0), sharey=True)
-        for ax, panel in zip(np.atleast_1d(axes), panels, strict=True):
+        per_row = min(columns or len(panels), len(panels))
+        rows = math.ceil(len(panels) / per_row)
+        figure, grid = plt.subplots(
+            rows, per_row, figsize=(2.15 * per_row, 3.0 * rows), sharey=True, squeeze=False
+        )
+        cells = list(grid.flat)
+        axes, spare = cells[: len(panels)], cells[len(panels) :]
+        for ax, panel in zip(axes, panels, strict=True):
             levels = range(len(panel["strengths"]))
             for name in models:
                 slot = slots.get(name, THIRD)
@@ -401,14 +480,20 @@ def robustness_figure(data: dict[str, Any]) -> Callable[[Theme], Figure]:
             ax.set_ylim(0, 1.03)
             ax.yaxis.grid(True)
             ax.set_axisbelow(True)
-        first = np.atleast_1d(axes)[0]
-        first.set_ylabel("test accuracy")
+        for row in grid:
+            row[0].set_ylabel("test accuracy")
+        first = axes[0]
         first.text(0, 1 / 6 + 0.02, "chance", fontsize=7.5, color=theme.muted)
         handles, labels = first.get_legend_handles_labels()
-        figure.legend(
-            handles, labels, loc="upper left", bbox_to_anchor=(0.0, 1.08), ncol=len(models)
-        )
-        figure.tight_layout(w_pad=1.2)
+        for ax in spare:
+            ax.axis("off")
+        if spare:
+            spare[0].legend(handles, labels, loc="center", handlelength=2.4, labelspacing=1.0)
+        else:
+            figure.legend(
+                handles, labels, loc="upper left", bbox_to_anchor=(0.0, 1.08), ncol=len(models)
+            )
+        figure.set_layout_engine("tight", w_pad=1.2, h_pad=1.5)
         return figure
 
     return draw

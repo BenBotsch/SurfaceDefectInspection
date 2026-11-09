@@ -172,7 +172,9 @@ uv run sdi train --seed 1 --run-dir runs/seed1
 uv run sdi train --seed 2 --run-dir runs/seed2
 uv run sdi seeds runs runs/seed1 runs/seed2    # -> results/seeds.{json,md}, results/seeds/
 uv run sdi figures                             # -> docs/figures/, light and dark
+uv run sdi figures --web                       # SVG and WebP for web pages -> docs/figures/web/
 uv run sdi gradcam                             # -> docs/figures/gradcam.png
+uv run sdi gradcam --web                       # -> docs/figures/web/gradcam.webp
 uv run sdi robustness                          # -> results/robustness.{json,md}, figure
 uv run sdi benchmark                           # INT8 model, -> results/benchmark.{json,md}
 uv run sdi report --check                      # results/*.md still match results/*.json
@@ -227,12 +229,13 @@ uv run sdi benchmark
 ## Layout
 
 ```text
-src/sdi/      dataset, preprocessing, baseline, model, training, metrics, ONNX export and INT8,
-              Grad-CAM, robustness, benchmark, figures, CLI
-tests/        pytest
-cpp/          C++ classifier with a benchmark mode, parity test, CMake, Dockerfile
-results/      metrics, predictions, per-seed results, robustness and benchmark tables
-docs/figures/ README figures, light and dark
+src/sdi/           dataset, preprocessing, baseline, model, training, metrics, ONNX export,
+                   INT8, Grad-CAM, robustness, benchmark, figures, CLI
+tests/             pytest
+cpp/               C++ classifier with a benchmark mode, parity test, CMake, Dockerfile
+results/           metrics, predictions, per-seed results, robustness and benchmark tables
+docs/figures/      README figures, light and dark
+docs/figures/web/  the same figures as SVG and WebP for other web pages
 ```
 
 [MODEL_CARD.md](MODEL_CARD.md) summarises intended use, data, metrics and limits of the model.

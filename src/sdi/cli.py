@@ -36,6 +36,7 @@ DATA = Path("data/neu-det")
 RUNS = Path("runs")
 RESULTS = Path("results")
 FIGURES = Path("docs/figures")
+WEB_FIGURES = FIGURES / "web"
 
 
 def write_text(path: Path, text: str) -> None:
@@ -163,7 +164,7 @@ def _load_report(name: str) -> Report:
     return Report.from_dict(json.loads((RESULTS / f"{name}.json").read_text(encoding="utf-8")))
 
 
-def _figures(data: Path) -> None:
+def _figures(data: Path, web: bool) -> None:
     # Imported here so that the other commands do not load matplotlib.
     from sdi import figures  # noqa: PLC0415
 
@@ -187,19 +188,29 @@ def _figures(data: Path) -> None:
         for p in predictions
         if p["label"] != p["predicted"]
     ]
+    robustness = json.loads((RESULTS / "robustness.json").read_text(encoding="utf-8"))
+    # Photographs go to the web as WebP, charts as SVG.
     jobs = {
-        "samples": figures.samples_figure(test),
-        "confusion": figures.confusion_figure([baseline, resnet]),
-        "per_class_f1": figures.per_class_figure(baseline, resnet),
-        "training": figures.training_figure(histories),
-        "errors": figures.errors_figure(errors),
+        "samples": (figures.samples_figure(test), figures.WEB_PHOTO),
+        "confusion": (figures.confusion_figure([baseline, resnet]), figures.WEB),
+        "per_class_f1": (figures.per_class_figure(baseline, resnet), figures.WEB),
+        "training": (figures.training_figure(histories), figures.WEB),
+        "errors": (figures.errors_figure(errors), figures.WEB_PHOTO),
+        "robustness": (
+            figures.robustness_figure(robustness, columns=3 if web else None),
+            figures.WEB,
+        ),
     }
-    for name, draw in jobs.items():
-        for path in figures.render(FIGURES, name, draw):
+    for name, (draw, web_output) in jobs.items():
+        if web:
+            paths = figures.render(WEB_FIGURES, name, draw, output=web_output)
+        else:
+            paths = figures.render(FIGURES, name, draw)
+        for path in paths:
             print(f"wrote {path}")
 
 
-def _gradcam(data: Path, run_dir: Path) -> None:
+def _gradcam(data: Path, run_dir: Path, web: bool) -> None:
     from sdi import figures  # noqa: PLC0415
     from sdi.gradcam import grad_cam  # noqa: PLC0415
 
@@ -229,7 +240,12 @@ def _gradcam(data: Path, run_dir: Path) -> None:
                 cam=grad_cam(model, tensor, CLASSES.index(p["predicted"])),
             )
         )
-    for path in figures.render(FIGURES, "gradcam", figures.gradcam_figure(explanations)):
+    if web:
+        draw = figures.gradcam_figure(explanations, columns=5)
+        paths = figures.render(WEB_FIGURES, "gradcam", draw, output=figures.WEB_PHOTO)
+    else:
+        paths = figures.render(FIGURES, "gradcam", figures.gradcam_figure(explanations))
+    for path in paths:
         print(f"wrote {path}")
 
 
@@ -353,9 +369,12 @@ def _parser() -> argparse.ArgumentParser:
     export_cmd.add_argument("--run-dir", type=Path, default=RUNS)
     report_cmd = sub.add_parser("report", help="render results/*.md from results/*.json")
     report_cmd.add_argument("--check", action="store_true", help="fail if a file is stale")
-    sub.add_parser("figures", help="render the README figures to docs/figures/")
+    web_help = "write SVG and WebP for web pages to docs/figures/web/ instead"
+    figures_cmd = sub.add_parser("figures", help="render the README figures to docs/figures/")
+    figures_cmd.add_argument("--web", action="store_true", help=web_help)
     gradcam_cmd = sub.add_parser("gradcam", help="render Grad-CAM maps to docs/figures/")
     gradcam_cmd.add_argument("--run-dir", type=Path, default=RUNS)
+    gradcam_cmd.add_argument("--web", action="store_true", help=web_help)
     bench_cmd = sub.add_parser(
         "benchmark", help="quantise to INT8 and time each runtime on one image"
     )
@@ -394,8 +413,8 @@ COMMANDS: dict[str, Callable[[argparse.Namespace], object]] = {
     "seeds": lambda a: _seeds(a.data, a.run_dirs),
     "export": lambda a: print(export_onnx(load(a.run_dir / "model.pt"), a.run_dir / "model.onnx")),
     "report": _report,
-    "figures": lambda a: _figures(a.data),
-    "gradcam": lambda a: _gradcam(a.data, a.run_dir),
+    "figures": lambda a: _figures(a.data, a.web),
+    "gradcam": lambda a: _gradcam(a.data, a.run_dir, a.web),
     "benchmark": lambda a: _benchmark(a.data, a.run_dir, a.iterations),
     "robustness": lambda a: _robustness(a.data, a.run_dir),
     "parity-fixture": lambda a: print(parity_fixture(a.directory)),
