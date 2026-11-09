@@ -8,7 +8,7 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
         # matplotlib ends SVG path lines with a space. Generated files stay as written.
-        exclude: ^docs/figures/web/.*.svg$
+        exclude: ^docs/figures/web/.*\.svg$
       - id: check-added-large-files
         args: [--maxkb=1024]
   - repo: https://github.com/astral-sh/ruff-pre-commit
