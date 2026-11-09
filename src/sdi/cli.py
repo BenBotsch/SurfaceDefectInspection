@@ -24,6 +24,7 @@ from sdi.train import TrainConfig, load, probabilities, train
 DATA = Path("data/neu-det")
 RUNS = Path("runs")
 RESULTS = Path("results")
+FIGURES = Path("docs/figures")
 
 
 def write_text(path: Path, text: str) -> None:
@@ -143,6 +144,46 @@ def _seeds(data: Path, run_dirs: list[Path]) -> None:
     print(markdown)
 
 
+def _load_report(name: str) -> Report:
+    return Report.from_dict(json.loads((RESULTS / f"{name}.json").read_text(encoding="utf-8")))
+
+
+def _figures(data: Path) -> None:
+    # Imported here so that the other commands do not load matplotlib.
+    from sdi import figures  # noqa: PLC0415
+
+    test = load_split(data, "test")
+    baseline, resnet = _load_report("baseline"), _load_report("resnet18")
+    histories = {
+        int(d["seed"]): d["history"]
+        for d in (
+            json.loads(p.read_text(encoding="utf-8"))
+            for p in sorted((RESULTS / "seeds").glob("seed*.json"))
+        )
+    }
+    predictions = json.loads((RESULTS / "resnet18_predictions.json").read_text(encoding="utf-8"))
+    errors = [
+        figures.Prediction(
+            data / "images" / "test" / p["image"],
+            p["label"],
+            p["predicted"],
+            max(p["probabilities"]),
+        )
+        for p in predictions
+        if p["label"] != p["predicted"]
+    ]
+    jobs = {
+        "samples": figures.samples_figure(test),
+        "confusion": figures.confusion_figure([baseline, resnet]),
+        "per_class_f1": figures.per_class_figure(baseline, resnet),
+        "training": figures.training_figure(histories),
+        "errors": figures.errors_figure(errors),
+    }
+    for name, draw in jobs.items():
+        for path in figures.render(FIGURES, name, draw):
+            print(f"wrote {path}")
+
+
 def main(argv: list[str] | None = None) -> None:
     """Run one command."""
     parser = argparse.ArgumentParser(
@@ -164,6 +205,7 @@ def main(argv: list[str] | None = None) -> None:
     export_cmd.add_argument("--run-dir", type=Path, default=RUNS)
     report_cmd = sub.add_parser("report", help="render results/*.md from results/*.json")
     report_cmd.add_argument("--check", action="store_true", help="fail if a file is stale")
+    sub.add_parser("figures", help="render the README figures to docs/figures/")
     fixture = sub.add_parser("parity-fixture", help="write the fixture of the C++ parity test")
     fixture.add_argument("directory", type=Path)
     args = parser.parse_args(argv)
@@ -186,5 +228,7 @@ def main(argv: list[str] | None = None) -> None:
         stale = report(args.check)
         if args.check and stale:
             raise SystemExit(f"{stale} results file(s) are stale; run `sdi report`")
+    elif args.command == "figures":
+        _figures(args.data)
     elif args.command == "parity-fixture":
         print(parity_fixture(args.directory))
