@@ -11,11 +11,11 @@
 
 Confusion matrix, rows true, columns predicted:
 
-| | crazing | inclusio | patches | pitted | rolled-i | scratche |
+| | Cr | In | Pa | PS | RS | Sc |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| crazing | 13 | 0 | 6 | 3 | 8 | 0 |
-| inclusio | 1 | 24 | 1 | 1 | 1 | 2 |
-| patches | 5 | 3 | 12 | 4 | 2 | 4 |
-| pitted | 6 | 9 | 1 | 10 | 3 | 1 |
-| rolled-i | 0 | 0 | 0 | 0 | 30 | 0 |
-| scratche | 0 | 2 | 1 | 0 | 0 | 27 |
+| Cr | 13 | 0 | 6 | 3 | 8 | 0 |
+| In | 1 | 24 | 1 | 1 | 1 | 2 |
+| Pa | 5 | 3 | 12 | 4 | 2 | 4 |
+| PS | 6 | 9 | 1 | 10 | 3 | 1 |
+| RS | 0 | 0 | 0 | 0 | 30 | 0 |
+| Sc | 0 | 2 | 1 | 0 | 0 | 27 |

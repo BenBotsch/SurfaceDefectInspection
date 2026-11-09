@@ -93,6 +93,7 @@ def test_training_writes_the_best_model_and_history(tmp_path: Path) -> None:
 
     history = json.loads((tmp_path / "run" / "history.json").read_text())
     assert [entry["epoch"] for entry in history] == [1]
+    assert json.loads((tmp_path / "run" / "config.json").read_text())["epochs"] == 1
     assert len(predict(load(path), samples, torch.device("cpu"))) == len(samples)
 
 

@@ -1,0 +1,2342 @@
+[
+  {
+    "image": "crazing_101.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999102,
+      0.000137,
+      0.000385,
+      0.000319,
+      2.5e-05,
+      3.1e-05
+    ]
+  },
+  {
+    "image": "crazing_11.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999486,
+      8.9e-05,
+      0.000196,
+      0.00018,
+      2.1e-05,
+      2.8e-05
+    ]
+  },
+  {
+    "image": "crazing_110.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999326,
+      4e-06,
+      0.000646,
+      1.9e-05,
+      4e-06,
+      1e-06
+    ]
+  },
+  {
+    "image": "crazing_112.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.995832,
+      1.5e-05,
+      0.00403,
+      0.000108,
+      1.1e-05,
+      4e-06
+    ]
+  },
+  {
+    "image": "crazing_113.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.99983,
+      2.6e-05,
+      9.2e-05,
+      3.9e-05,
+      7e-06,
+      6e-06
+    ]
+  },
+  {
+    "image": "crazing_139.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.996784,
+      0.000397,
+      0.001435,
+      0.001164,
+      0.0001,
+      0.00012
+    ]
+  },
+  {
+    "image": "crazing_141.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.997493,
+      0.000254,
+      0.001227,
+      0.000879,
+      7.3e-05,
+      7.3e-05
+    ]
+  },
+  {
+    "image": "crazing_146.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999929,
+      5e-06,
+      5.4e-05,
+      8e-06,
+      2e-06,
+      1e-06
+    ]
+  },
+  {
+    "image": "crazing_150.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999015,
+      0.000141,
+      0.000495,
+      0.000258,
+      4.6e-05,
+      4.6e-05
+    ]
+  },
+  {
+    "image": "crazing_163.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999936,
+      9e-06,
+      3.5e-05,
+      1.3e-05,
+      3e-06,
+      3e-06
+    ]
+  },
+  {
+    "image": "crazing_170.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.99997,
+      8e-06,
+      1.3e-05,
+      4e-06,
+      2e-06,
+      2e-06
+    ]
+  },
+  {
+    "image": "crazing_172.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999249,
+      9e-06,
+      0.000692,
+      4.1e-05,
+      6e-06,
+      3e-06
+    ]
+  },
+  {
+    "image": "crazing_190.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.998739,
+      0.000122,
+      0.000589,
+      0.000463,
+      4.5e-05,
+      4.3e-05
+    ]
+  },
+  {
+    "image": "crazing_199.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999886,
+      1.8e-05,
+      5.9e-05,
+      2.7e-05,
+      4e-06,
+      5e-06
+    ]
+  },
+  {
+    "image": "crazing_2.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.997009,
+      0.00057,
+      0.000913,
+      0.001235,
+      0.00014,
+      0.000134
+    ]
+  },
+  {
+    "image": "crazing_20.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.998284,
+      0.000211,
+      0.000998,
+      0.000418,
+      5.2e-05,
+      3.8e-05
+    ]
+  },
+  {
+    "image": "crazing_201.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999844,
+      1.3e-05,
+      0.000109,
+      2.7e-05,
+      4e-06,
+      3e-06
+    ]
+  },
+  {
+    "image": "crazing_206.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999487,
+      4.7e-05,
+      0.000294,
+      0.000147,
+      9e-06,
+      1.8e-05
+    ]
+  },
+  {
+    "image": "crazing_211.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999751,
+      2e-06,
+      0.00024,
+      5e-06,
+      1e-06,
+      0.0
+    ]
+  },
+  {
+    "image": "crazing_225.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999839,
+      3.4e-05,
+      6.7e-05,
+      3.8e-05,
+      1.3e-05,
+      1e-05
+    ]
+  },
+  {
+    "image": "crazing_227.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999827,
+      2.2e-05,
+      0.000104,
+      3.2e-05,
+      9e-06,
+      6e-06
+    ]
+  },
+  {
+    "image": "crazing_256.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999762,
+      3.5e-05,
+      0.000118,
+      6.8e-05,
+      7e-06,
+      1e-05
+    ]
+  },
+  {
+    "image": "crazing_292.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999391,
+      8.2e-05,
+      0.0003,
+      0.000168,
+      2.6e-05,
+      3.2e-05
+    ]
+  },
+  {
+    "image": "crazing_294.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.997927,
+      7.2e-05,
+      0.001652,
+      0.000295,
+      3.3e-05,
+      2.2e-05
+    ]
+  },
+  {
+    "image": "crazing_35.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.998257,
+      0.000213,
+      0.000864,
+      0.00054,
+      6.8e-05,
+      5.9e-05
+    ]
+  },
+  {
+    "image": "crazing_61.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.99176,
+      0.001146,
+      0.00253,
+      0.003989,
+      0.000315,
+      0.00026
+    ]
+  },
+  {
+    "image": "crazing_79.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.99888,
+      0.000248,
+      0.000329,
+      0.000418,
+      6.2e-05,
+      6.3e-05
+    ]
+  },
+  {
+    "image": "crazing_80.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.99825,
+      7.4e-05,
+      0.001343,
+      0.000265,
+      4.5e-05,
+      2.2e-05
+    ]
+  },
+  {
+    "image": "crazing_90.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.998593,
+      1e-05,
+      0.001321,
+      6.4e-05,
+      9e-06,
+      4e-06
+    ]
+  },
+  {
+    "image": "crazing_92.jpg",
+    "label": "crazing",
+    "predicted": "crazing",
+    "probabilities": [
+      0.999981,
+      3e-06,
+      1.1e-05,
+      4e-06,
+      1e-06,
+      1e-06
+    ]
+  },
+  {
+    "image": "inclusion_117.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      2.7e-05,
+      0.999868,
+      1.6e-05,
+      1.9e-05,
+      4e-06,
+      6.6e-05
+    ]
+  },
+  {
+    "image": "inclusion_121.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      1.9e-05,
+      0.99992,
+      1.4e-05,
+      1.5e-05,
+      2e-06,
+      3e-05
+    ]
+  },
+  {
+    "image": "inclusion_125.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      1.3e-05,
+      0.99992,
+      2e-06,
+      1.1e-05,
+      2e-06,
+      5.3e-05
+    ]
+  },
+  {
+    "image": "inclusion_127.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      7e-05,
+      0.999458,
+      2.2e-05,
+      0.000139,
+      8e-06,
+      0.000303
+    ]
+  },
+  {
+    "image": "inclusion_13.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      1e-06,
+      0.999998,
+      0.0,
+      0.0,
+      0.0,
+      2e-06
+    ]
+  },
+  {
+    "image": "inclusion_130.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.001816,
+      0.989734,
+      0.000861,
+      0.004963,
+      0.000429,
+      0.002198
+    ]
+  },
+  {
+    "image": "inclusion_136.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.004053,
+      0.966677,
+      0.001697,
+      0.019305,
+      0.001212,
+      0.007056
+    ]
+  },
+  {
+    "image": "inclusion_154.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.000367,
+      0.997935,
+      0.000127,
+      0.000833,
+      6.3e-05,
+      0.000675
+    ]
+  },
+  {
+    "image": "inclusion_170.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      7.2e-05,
+      0.999417,
+      6.8e-05,
+      5.2e-05,
+      9e-06,
+      0.000383
+    ]
+  },
+  {
+    "image": "inclusion_171.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      3.3e-05,
+      0.999822,
+      6.8e-05,
+      1.8e-05,
+      3e-06,
+      5.5e-05
+    ]
+  },
+  {
+    "image": "inclusion_185.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      8e-05,
+      0.999439,
+      0.00012,
+      7.2e-05,
+      9e-06,
+      0.000281
+    ]
+  },
+  {
+    "image": "inclusion_187.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      2.8e-05,
+      0.999867,
+      2.8e-05,
+      1.1e-05,
+      2e-06,
+      6.3e-05
+    ]
+  },
+  {
+    "image": "inclusion_2.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.000176,
+      0.998845,
+      0.00012,
+      0.000447,
+      3.7e-05,
+      0.000376
+    ]
+  },
+  {
+    "image": "inclusion_207.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.001967,
+      0.969179,
+      0.000482,
+      0.020016,
+      0.00155,
+      0.006805
+    ]
+  },
+  {
+    "image": "inclusion_212.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.000445,
+      0.997004,
+      0.000345,
+      0.001313,
+      0.000248,
+      0.000646
+    ]
+  },
+  {
+    "image": "inclusion_235.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.000366,
+      0.954045,
+      0.000355,
+      0.04364,
+      0.000172,
+      0.001422
+    ]
+  },
+  {
+    "image": "inclusion_243.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.000315,
+      0.992879,
+      0.000118,
+      0.005285,
+      0.000146,
+      0.001257
+    ]
+  },
+  {
+    "image": "inclusion_285.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      2.3e-05,
+      0.999899,
+      2.1e-05,
+      4e-06,
+      1e-06,
+      5.2e-05
+    ]
+  },
+  {
+    "image": "inclusion_292.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      3e-05,
+      0.999865,
+      1.2e-05,
+      1.3e-05,
+      1.1e-05,
+      7e-05
+    ]
+  },
+  {
+    "image": "inclusion_49.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.0001,
+      0.999512,
+      6.4e-05,
+      8.1e-05,
+      1e-05,
+      0.000233
+    ]
+  },
+  {
+    "image": "inclusion_53.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.000115,
+      0.99943,
+      3.6e-05,
+      0.000157,
+      2.8e-05,
+      0.000235
+    ]
+  },
+  {
+    "image": "inclusion_60.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      1.6e-05,
+      0.999919,
+      8e-06,
+      9e-06,
+      1e-06,
+      4.7e-05
+    ]
+  },
+  {
+    "image": "inclusion_63.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.000194,
+      0.99904,
+      0.000144,
+      0.000263,
+      2.7e-05,
+      0.000333
+    ]
+  },
+  {
+    "image": "inclusion_7.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.005534,
+      0.495276,
+      0.005217,
+      0.032467,
+      0.002671,
+      0.458835
+    ]
+  },
+  {
+    "image": "inclusion_73.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.000335,
+      0.998165,
+      0.000131,
+      0.000286,
+      6.8e-05,
+      0.001016
+    ]
+  },
+  {
+    "image": "inclusion_79.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.000102,
+      0.999234,
+      4.4e-05,
+      0.00011,
+      1.1e-05,
+      0.000499
+    ]
+  },
+  {
+    "image": "inclusion_82.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.000175,
+      0.998554,
+      5.7e-05,
+      0.000173,
+      1.7e-05,
+      0.001023
+    ]
+  },
+  {
+    "image": "inclusion_85.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      1e-06,
+      0.999997,
+      1e-06,
+      0.0,
+      0.0,
+      2e-06
+    ]
+  },
+  {
+    "image": "inclusion_9.jpg",
+    "label": "inclusion",
+    "predicted": "scratches",
+    "probabilities": [
+      0.008979,
+      0.317426,
+      0.00357,
+      0.06223,
+      0.003025,
+      0.60477
+    ]
+  },
+  {
+    "image": "inclusion_93.jpg",
+    "label": "inclusion",
+    "predicted": "inclusion",
+    "probabilities": [
+      4.6e-05,
+      0.999872,
+      1.4e-05,
+      1.5e-05,
+      2e-06,
+      5.1e-05
+    ]
+  },
+  {
+    "image": "patches_135.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.003822,
+      0.001264,
+      0.994415,
+      0.000369,
+      3.5e-05,
+      9.6e-05
+    ]
+  },
+  {
+    "image": "patches_137.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "patches_163.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.017605,
+      0.001342,
+      0.970998,
+      0.009754,
+      4.5e-05,
+      0.000255
+    ]
+  },
+  {
+    "image": "patches_17.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.0,
+      1e-06,
+      0.999998,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "patches_173.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      1.9e-05,
+      7e-06,
+      0.999955,
+      1.5e-05,
+      0.0,
+      4e-06
+    ]
+  },
+  {
+    "image": "patches_206.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.002305,
+      0.000429,
+      0.996121,
+      0.001079,
+      2.9e-05,
+      3.6e-05
+    ]
+  },
+  {
+    "image": "patches_208.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "patches_21.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "patches_213.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.999999,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "patches_219.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.999999,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "patches_225.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.001621,
+      0.000146,
+      0.997962,
+      0.000201,
+      1.1e-05,
+      5.9e-05
+    ]
+  },
+  {
+    "image": "patches_226.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.999999,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "patches_227.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      1.2e-05,
+      6e-06,
+      0.999967,
+      1.5e-05,
+      0.0,
+      1e-06
+    ]
+  },
+  {
+    "image": "patches_231.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      2.9e-05,
+      5e-06,
+      0.999924,
+      4.2e-05,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "patches_246.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      4.5e-05,
+      2.2e-05,
+      0.999885,
+      4.6e-05,
+      0.0,
+      2e-06
+    ]
+  },
+  {
+    "image": "patches_247.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      1.3e-05,
+      2.9e-05,
+      0.999923,
+      3.3e-05,
+      0.0,
+      1e-06
+    ]
+  },
+  {
+    "image": "patches_254.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      4e-06,
+      6e-06,
+      0.999961,
+      2.9e-05,
+      0.0,
+      1e-06
+    ]
+  },
+  {
+    "image": "patches_297.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      5e-06,
+      6e-06,
+      0.999981,
+      7e-06,
+      0.0,
+      1e-06
+    ]
+  },
+  {
+    "image": "patches_32.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "patches_33.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.003043,
+      0.00154,
+      0.909036,
+      0.086119,
+      0.000119,
+      0.000144
+    ]
+  },
+  {
+    "image": "patches_35.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      6e-06,
+      1.7e-05,
+      0.999933,
+      4.2e-05,
+      0.0,
+      2e-06
+    ]
+  },
+  {
+    "image": "patches_37.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      6.7e-05,
+      0.000639,
+      0.983182,
+      0.016055,
+      3e-06,
+      5.5e-05
+    ]
+  },
+  {
+    "image": "patches_43.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.00023,
+      0.002887,
+      0.981758,
+      0.014982,
+      1.6e-05,
+      0.000127
+    ]
+  },
+  {
+    "image": "patches_49.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "patches_53.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      4e-06,
+      3.6e-05,
+      0.999889,
+      7e-05,
+      0.0,
+      1e-06
+    ]
+  },
+  {
+    "image": "patches_62.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.001461,
+      0.004216,
+      0.993041,
+      0.001192,
+      2.2e-05,
+      6.8e-05
+    ]
+  },
+  {
+    "image": "patches_7.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "patches_74.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      1e-06,
+      1e-06,
+      0.999997,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "patches_82.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      2.5e-05,
+      0.000127,
+      0.999785,
+      5.7e-05,
+      1e-06,
+      4e-06
+    ]
+  },
+  {
+    "image": "patches_88.jpg",
+    "label": "patches",
+    "predicted": "patches",
+    "probabilities": [
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_123.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      7e-06,
+      0.004034,
+      3e-06,
+      0.995918,
+      5e-06,
+      3.3e-05
+    ]
+  },
+  {
+    "image": "pitted_surface_126.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      2e-06,
+      0.0,
+      0.999998,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_129.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      3.8e-05,
+      0.0,
+      0.999959,
+      0.0,
+      2e-06
+    ]
+  },
+  {
+    "image": "pitted_surface_132.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      2.7e-05,
+      0.0,
+      0.999972,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_136.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      1e-06,
+      0.0,
+      0.999999,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_138.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      2e-06,
+      0.0,
+      0.999998,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_144.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      0.000277,
+      0.0,
+      0.999722,
+      0.0,
+      1e-06
+    ]
+  },
+  {
+    "image": "pitted_surface_153.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      1.9e-05,
+      0.002401,
+      1.5e-05,
+      0.997322,
+      3.8e-05,
+      0.000205
+    ]
+  },
+  {
+    "image": "pitted_surface_168.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      1e-06,
+      0.0,
+      0.999999,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_169.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_171.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      1e-06,
+      0.0,
+      0.999998,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_195.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      2.2e-05,
+      2e-06,
+      0.999965,
+      1e-06,
+      9e-06
+    ]
+  },
+  {
+    "image": "pitted_surface_197.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      4.2e-05,
+      0.007067,
+      4.3e-05,
+      0.992794,
+      8e-06,
+      4.6e-05
+    ]
+  },
+  {
+    "image": "pitted_surface_202.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      9e-06,
+      0.0,
+      0.999991,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_213.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      2.1e-05,
+      0.003589,
+      7e-06,
+      0.996332,
+      1e-05,
+      4.1e-05
+    ]
+  },
+  {
+    "image": "pitted_surface_220.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      1e-06,
+      0.002611,
+      1e-06,
+      0.99738,
+      0.0,
+      8e-06
+    ]
+  },
+  {
+    "image": "pitted_surface_236.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      8e-06,
+      0.002642,
+      6e-06,
+      0.997329,
+      3e-06,
+      1.2e-05
+    ]
+  },
+  {
+    "image": "pitted_surface_239.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      5e-06,
+      0.0,
+      0.999995,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_24.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      1.3e-05,
+      0.0,
+      0.999987,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_274.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      0.000603,
+      0.0,
+      0.999396,
+      0.0,
+      1e-06
+    ]
+  },
+  {
+    "image": "pitted_surface_284.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      1e-06,
+      0.0,
+      0.999999,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_291.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_297.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      1.4e-05,
+      2e-06,
+      0.999982,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_32.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      5e-06,
+      0.0,
+      0.999994,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_36.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      1.4e-05,
+      0.001632,
+      3.1e-05,
+      0.998247,
+      1.2e-05,
+      6.5e-05
+    ]
+  },
+  {
+    "image": "pitted_surface_55.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      2.6e-05,
+      0.0,
+      0.999974,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_7.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      2.1e-05,
+      0.0,
+      0.999979,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "pitted_surface_86.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.00111,
+      0.085922,
+      0.000589,
+      0.906152,
+      0.001709,
+      0.004518
+    ]
+  },
+  {
+    "image": "pitted_surface_89.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      1e-06,
+      0.002341,
+      2e-06,
+      0.997645,
+      2e-06,
+      8e-06
+    ]
+  },
+  {
+    "image": "pitted_surface_95.jpg",
+    "label": "pitted_surface",
+    "predicted": "pitted_surface",
+    "probabilities": [
+      0.0,
+      0.000248,
+      0.0,
+      0.999751,
+      0.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_102.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_132.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_135.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_148.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.999999,
+      1e-06
+    ]
+  },
+  {
+    "image": "rolled-in_scale_165.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_171.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_178.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_18.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_190.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_205.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.999999,
+      1e-06
+    ]
+  },
+  {
+    "image": "rolled-in_scale_208.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_21.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_214.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_216.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_231.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_237.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      2e-06,
+      1e-06,
+      0.0,
+      0.0,
+      0.999992,
+      4e-06
+    ]
+  },
+  {
+    "image": "rolled-in_scale_238.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.999999,
+      1e-06
+    ]
+  },
+  {
+    "image": "rolled-in_scale_258.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      2e-06,
+      1e-06,
+      0.0,
+      0.0,
+      0.999993,
+      3e-06
+    ]
+  },
+  {
+    "image": "rolled-in_scale_275.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      3e-06,
+      1e-06,
+      0.0,
+      0.0,
+      0.999992,
+      3e-06
+    ]
+  },
+  {
+    "image": "rolled-in_scale_276.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.999998,
+      1e-06
+    ]
+  },
+  {
+    "image": "rolled-in_scale_295.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.999999,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_32.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_39.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.999999,
+      1e-06
+    ]
+  },
+  {
+    "image": "rolled-in_scale_40.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.999999,
+      1e-06
+    ]
+  },
+  {
+    "image": "rolled-in_scale_41.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.999994,
+      5e-06
+    ]
+  },
+  {
+    "image": "rolled-in_scale_43.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.999999,
+      1e-06
+    ]
+  },
+  {
+    "image": "rolled-in_scale_51.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_58.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0
+    ]
+  },
+  {
+    "image": "rolled-in_scale_80.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.999998,
+      2e-06
+    ]
+  },
+  {
+    "image": "rolled-in_scale_90.jpg",
+    "label": "rolled-in_scale",
+    "predicted": "rolled-in_scale",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.999999,
+      1e-06
+    ]
+  },
+  {
+    "image": "scratches_122.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.037252,
+      0.299032,
+      0.025829,
+      0.164674,
+      0.007344,
+      0.465869
+    ]
+  },
+  {
+    "image": "scratches_126.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.000103,
+      0.000139,
+      0.00204,
+      0.00145,
+      6e-06,
+      0.996262
+    ]
+  },
+  {
+    "image": "scratches_13.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.000173,
+      0.00011,
+      3.9e-05,
+      0.000147,
+      2.2e-05,
+      0.999508
+    ]
+  },
+  {
+    "image": "scratches_138.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      8.5e-05,
+      0.000123,
+      0.000132,
+      0.000596,
+      1.9e-05,
+      0.999045
+    ]
+  },
+  {
+    "image": "scratches_140.jpg",
+    "label": "scratches",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.013328,
+      0.637699,
+      0.035807,
+      0.010109,
+      0.001342,
+      0.301715
+    ]
+  },
+  {
+    "image": "scratches_141.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.007297,
+      0.085123,
+      0.011817,
+      0.005323,
+      0.000726,
+      0.889714
+    ]
+  },
+  {
+    "image": "scratches_143.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.00073,
+      0.001283,
+      0.000793,
+      0.004574,
+      0.000206,
+      0.992414
+    ]
+  },
+  {
+    "image": "scratches_147.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      3.5e-05,
+      7e-06,
+      9e-06,
+      2.2e-05,
+      4e-06,
+      0.999923
+    ]
+  },
+  {
+    "image": "scratches_149.jpg",
+    "label": "scratches",
+    "predicted": "inclusion",
+    "probabilities": [
+      0.046205,
+      0.723275,
+      0.036636,
+      0.042486,
+      0.007958,
+      0.14344
+    ]
+  },
+  {
+    "image": "scratches_155.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  {
+    "image": "scratches_159.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      1.1e-05,
+      1e-06,
+      1e-06,
+      1e-06,
+      0.0,
+      0.999986
+    ]
+  },
+  {
+    "image": "scratches_170.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      2e-06,
+      1e-06,
+      1.5e-05,
+      8e-06,
+      0.0,
+      0.999975
+    ]
+  },
+  {
+    "image": "scratches_197.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  {
+    "image": "scratches_201.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.000183,
+      6.1e-05,
+      0.000107,
+      0.000119,
+      2.4e-05,
+      0.999506
+    ]
+  },
+  {
+    "image": "scratches_231.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  {
+    "image": "scratches_242.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      3e-06,
+      2e-06,
+      4e-06,
+      3e-06,
+      0.0,
+      0.999988
+    ]
+  },
+  {
+    "image": "scratches_250.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  {
+    "image": "scratches_260.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.999999
+    ]
+  },
+  {
+    "image": "scratches_261.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      9e-06,
+      1.2e-05,
+      2.6e-05,
+      2.7e-05,
+      2e-06,
+      0.999924
+    ]
+  },
+  {
+    "image": "scratches_262.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      4e-05,
+      5.7e-05,
+      7e-05,
+      0.000174,
+      9e-06,
+      0.99965
+    ]
+  },
+  {
+    "image": "scratches_269.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.0,
+      0.0,
+      1e-06,
+      0.0,
+      0.0,
+      0.999999
+    ]
+  },
+  {
+    "image": "scratches_270.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      1e-06,
+      1e-06,
+      1e-06,
+      0.0,
+      0.0,
+      0.999997
+    ]
+  },
+  {
+    "image": "scratches_289.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      4.1e-05,
+      6.5e-05,
+      0.000265,
+      0.000649,
+      3e-05,
+      0.998949
+    ]
+  },
+  {
+    "image": "scratches_294.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  {
+    "image": "scratches_299.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      6e-05,
+      0.000143,
+      6.2e-05,
+      6e-05,
+      1.7e-05,
+      0.999658
+    ]
+  },
+  {
+    "image": "scratches_50.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      6.1e-05,
+      0.000115,
+      0.000352,
+      0.000514,
+      3.2e-05,
+      0.998925
+    ]
+  },
+  {
+    "image": "scratches_62.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.000476,
+      0.003678,
+      0.000337,
+      0.004412,
+      0.000308,
+      0.99079
+    ]
+  },
+  {
+    "image": "scratches_85.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      5.1e-05,
+      9e-06,
+      4e-06,
+      7e-06,
+      2e-06,
+      0.999926
+    ]
+  },
+  {
+    "image": "scratches_88.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      9e-06,
+      0.0,
+      0.0,
+      1e-06,
+      0.0,
+      0.999989
+    ]
+  },
+  {
+    "image": "scratches_9.jpg",
+    "label": "scratches",
+    "predicted": "scratches",
+    "probabilities": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  }
+]

@@ -97,6 +97,6 @@
       28
     ]
   ],
-  "median_latency_ms": 16.43,
+  "median_latency_ms": 9.59,
   "latency_device": "ONNX Runtime CPU, batch 1, Intel64 Family 6 Model 165 Stepping 5, GenuineIntel"
 }

@@ -4,10 +4,11 @@ import json
 import random
 import time
 from collections.abc import Callable, Sequence
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 import numpy as np
+import numpy.typing as npt
 import torch
 from sklearn.metrics import f1_score
 from torch import nn
@@ -55,15 +56,22 @@ def seed_everything(seed: int) -> None:
     torch.manual_seed(seed)
 
 
-def predict(model: nn.Module, samples: Sequence[Sample], device: torch.device) -> list[int]:
-    """Predicted class index per sample."""
+def probabilities(
+    model: nn.Module, samples: Sequence[Sample], device: torch.device
+) -> npt.NDArray[np.float32]:
+    """Softmax probabilities, one row per sample and one column per class."""
     model.eval()
     loader = DataLoader(ImageDataset(samples), batch_size=64)
-    out: list[int] = []
+    out: list[npt.NDArray[np.float32]] = []
     with torch.no_grad():
         for images, _ in loader:
-            out += model(images.to(device)).argmax(dim=1).tolist()
-    return out
+            out.append(torch.softmax(model(images.to(device)), dim=1).cpu().numpy())
+    return np.concatenate(out).astype(np.float32)
+
+
+def predict(model: nn.Module, samples: Sequence[Sample], device: torch.device) -> list[int]:
+    """Predicted class index per sample."""
+    return [int(i) for i in probabilities(model, samples, device).argmax(axis=1)]
 
 
 def train(
@@ -73,9 +81,12 @@ def train(
     config: TrainConfig | None = None,
     log: Callable[[str], None] = print,
 ) -> Path:
-    """Train, write ``model.pt`` and ``history.json`` to ``output`` and return the model path.
+    """Train, write ``model.pt``, ``history.json`` and ``config.json`` to ``output``.
 
     The saved weights are those of the epoch with the best macro F1 on the validation split.
+
+    Returns:
+        The path of ``model.pt``.
     """
     config = config or TrainConfig()
     seed_everything(config.seed)
@@ -116,6 +127,7 @@ def train(
             best = val_f1
             torch.save(model.state_dict(), path)
     (output / "history.json").write_text(json.dumps(history, indent=2), encoding="utf-8")
+    (output / "config.json").write_text(json.dumps(asdict(config), indent=2), encoding="utf-8")
     return path
 
 
