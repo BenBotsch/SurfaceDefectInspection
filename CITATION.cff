@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Surface Defect Inspection"
+abstract: >-
+  Steel surface defect classification on NEU-DET with a HOG baseline, a fine-tuned ResNet18,
+  ONNX and INT8 export, a C++ classifier with a parity test, Grad-CAM, a robustness study and a
+  runtime benchmark.
+type: software
+authors:
+  - given-names: Benny
+    family-names: Botsch
+version: 0.2.0
+license: MIT
+repository-code: "https://github.com/BenBotsch/SurfaceDefectInspection"
+keywords:
+  - surface defect detection
+  - NEU-DET
+  - ResNet18
+  - ONNX
+  - quantization
+references:
+  - type: article
+    authors:
+      - family-names: Song
+        given-names: Kechen
+      - family-names: Yan
+        given-names: Yunhui
+    title: >-
+      A noise robust method based on completed local binary patterns for hot-rolled steel strip
+      surface defects
+    journal: Applied Surface Science
+    volume: 285
+    start: 858
+    end: 864
+    year: 2013
