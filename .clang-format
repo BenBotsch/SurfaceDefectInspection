@@ -1,0 +1,11 @@
+BasedOnStyle: Google
+ColumnLimit: 100
+# Standard headers, then OpenCV, then project headers, each as its own block.
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<[a-z_]+>$'
+    Priority: 1
+  - Regex: '^<'
+    Priority: 2
+  - Regex: '^"'
+    Priority: 3

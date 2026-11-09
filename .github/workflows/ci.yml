@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
 
 jobs:
@@ -11,17 +11,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
       - run: uv sync --frozen
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run mypy
       - run: uv run pytest
+      - run: uv run sdi report --check
+      - run: uv run pre-commit run --all-files --show-diff-on-failure
 
   cpp:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libopencv-dev
       - run: uv sync --frozen
       - run: uv run sdi parity-fixture "$RUNNER_TEMP/fixture"

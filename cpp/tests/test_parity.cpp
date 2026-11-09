@@ -52,7 +52,8 @@ int main(int argc, char** argv) {
   const std::string dir = argv[1];
   const auto expected = expected_probabilities(dir + "/expected.json");
   sdi::Classifier classifier(dir + "/model.onnx");
-  const auto actual = classifier.probabilities(cv::imread(dir + "/image.png", cv::IMREAD_GRAYSCALE));
+  const auto actual =
+      classifier.probabilities(cv::imread(dir + "/image.png", cv::IMREAD_GRAYSCALE));
   if (expected.size() != sdi::kClasses.size() || actual.size() != expected.size()) {
     std::fprintf(stderr, "expected %zu probabilities, got %zu from JSON and %zu from C++\n",
                  sdi::kClasses.size(), expected.size(), actual.size());

@@ -1,7 +1,7 @@
 [project]
 name = "surface-defect-inspection"
-version = "0.1.0"
-description = "Steel surface defect classification on NEU-DET: OpenCV preprocessing, a HOG baseline, ResNet18, ONNX export and C++ inference."
+version = "0.2.0"
+description = "Steel surface defect classification on NEU-DET: OpenCV preprocessing, a HOG baseline, ResNet18, ONNX and INT8 export, and C++ inference."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12,<3.13"
@@ -18,11 +18,15 @@ dependencies = [
     "torchvision>=0.22",
 ]
 
+[project.urls]
+Repository = "https://github.com/BenBotsch/SurfaceDefectInspection"
+Issues = "https://github.com/BenBotsch/SurfaceDefectInspection/issues"
+
 [project.scripts]
 sdi = "sdi.cli:main"
 
 [dependency-groups]
-dev = ["mypy>=1.15", "pytest>=8.3", "ruff>=0.11"]
+dev = ["mypy>=1.15", "pre-commit>=4.0", "pytest>=8.3", "ruff>=0.11"]
 
 [build-system]
 requires = ["hatchling"]
