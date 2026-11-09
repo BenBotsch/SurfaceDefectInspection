@@ -184,6 +184,41 @@ def _figures(data: Path) -> None:
             print(f"wrote {path}")
 
 
+def _gradcam(data: Path, run_dir: Path) -> None:
+    from sdi import figures  # noqa: PLC0415
+    from sdi.gradcam import grad_cam  # noqa: PLC0415
+    from sdi.preprocess import read_gray, to_tensor  # noqa: PLC0415
+
+    model = load(run_dir / "model.pt")
+    by_name = {s.path.name: s for s in load_split(data, "test")}
+    predictions = json.loads((RESULTS / "resnet18_predictions.json").read_text(encoding="utf-8"))
+    correct: dict[str, dict[str, Any]] = {}
+    for p in predictions:
+        if p["label"] == p["predicted"]:
+            correct.setdefault(p["label"], p)
+    chosen = [correct[c] for c in CLASSES if c in correct]
+    chosen += [p for p in predictions if p["label"] != p["predicted"]]
+    explanations = []
+    for p in chosen:
+        sample = by_name[p["image"]]
+        tensor = torch.from_numpy(to_tensor(read_gray(sample.path)))[None]
+        wrong = p["label"] != p["predicted"]
+        explanations.append(
+            figures.Explanation(
+                path=sample.path,
+                title=("misclassified" if wrong else p["label"].replace("_", " ")),
+                caption=(
+                    f"{p['label']}\n→ {p['predicted']}"
+                    if wrong
+                    else f"p = {max(p['probabilities']):.2f}"
+                ),
+                cam=grad_cam(model, tensor, CLASSES.index(p["predicted"])),
+            )
+        )
+    for path in figures.render(FIGURES, "gradcam", figures.gradcam_figure(explanations)):
+        print(f"wrote {path}")
+
+
 def main(argv: list[str] | None = None) -> None:
     """Run one command."""
     parser = argparse.ArgumentParser(
@@ -206,6 +241,8 @@ def main(argv: list[str] | None = None) -> None:
     report_cmd = sub.add_parser("report", help="render results/*.md from results/*.json")
     report_cmd.add_argument("--check", action="store_true", help="fail if a file is stale")
     sub.add_parser("figures", help="render the README figures to docs/figures/")
+    gradcam_cmd = sub.add_parser("gradcam", help="render Grad-CAM maps to docs/figures/")
+    gradcam_cmd.add_argument("--run-dir", type=Path, default=RUNS)
     fixture = sub.add_parser("parity-fixture", help="write the fixture of the C++ parity test")
     fixture.add_argument("directory", type=Path)
     args = parser.parse_args(argv)
@@ -230,5 +267,7 @@ def main(argv: list[str] | None = None) -> None:
             raise SystemExit(f"{stale} results file(s) are stale; run `sdi report`")
     elif args.command == "figures":
         _figures(args.data)
+    elif args.command == "gradcam":
+        _gradcam(args.data, args.run_dir)
     elif args.command == "parity-fixture":
         print(parity_fixture(args.directory))

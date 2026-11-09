@@ -21,6 +21,9 @@ def test_every_figure_is_written_for_light_and_dark_pages(tmp_path: Path) -> Non
         "per_class_f1": figures.per_class_figure(report, report),
         "training": figures.training_figure({0: history, 1: history}),
         "errors": figures.errors_figure([figures.Prediction(image, "a", "b", 0.6)] * 2),
+        "gradcam": figures.gradcam_figure(
+            [figures.Explanation(image, "a", "p = 1", np.eye(8, dtype=np.float32))] * 2
+        ),
     }
 
     for name, draw in jobs.items():

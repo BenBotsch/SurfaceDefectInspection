@@ -16,8 +16,10 @@ import matplotlib as mpl
 
 mpl.use("Agg")
 
+import cv2
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.typing as npt
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.figure import Figure
 
@@ -312,6 +314,55 @@ def errors_figure(errors: Sequence[Prediction]) -> Callable[[Theme], Figure]:
                 linespacing=1.5,
             )
         figure.tight_layout()
+        return figure
+
+    return draw
+
+
+@dataclass(frozen=True, slots=True)
+class Explanation:
+    """An image with a Grad-CAM map and the caption of its column."""
+
+    path: Path
+    title: str
+    caption: str
+    cam: npt.NDArray[np.float32]
+
+
+def gradcam_figure(explanations: Sequence[Explanation]) -> Callable[[Theme], Figure]:
+    """Each image above its Grad-CAM overlay, one column per image.
+
+    The map uses ``inferno``, a perceptually uniform sequential colormap, over the image in grey.
+    """
+
+    def draw(theme: Theme) -> Figure:
+        n, gap, left, right, bottom_margin, top_margin = (
+            len(explanations),
+            0.06,
+            0.01,
+            0.99,
+            0.13,
+            0.9,
+        )
+        width = 1.45 * n
+        # Height at which square images fill the grid without empty bands between the rows.
+        cell = width * (right - left) / (n + (n - 1) * gap)
+        height = cell * (2 + gap) / (top_margin - bottom_margin)
+        figure, axes = plt.subplots(2, n, figsize=(width, height), squeeze=False)
+        for col, item in enumerate(explanations):
+            size = item.cam.shape[::-1]
+            image = cv2.resize(read_gray(item.path), size, interpolation=cv2.INTER_LINEAR)
+            top, bottom = axes[0, col], axes[1, col]
+            top.imshow(image, cmap="gray", vmin=0, vmax=255)
+            bottom.imshow(image, cmap="gray", vmin=0, vmax=255)
+            bottom.imshow(item.cam, cmap="inferno", vmin=0, vmax=1, alpha=0.5)
+            _image_axes(top)
+            _image_axes(bottom)
+            top.set_title(item.title, loc="center", fontsize=8.5, color=theme.ink)
+            bottom.set_xlabel(item.caption, fontsize=7.5, color=theme.secondary, linespacing=1.4)
+        figure.subplots_adjust(
+            left=left, right=right, bottom=bottom_margin, top=top_margin, wspace=gap, hspace=gap
+        )
         return figure
 
     return draw
