@@ -1,0 +1,45 @@
+{
+  "benchmark": [
+    {
+      "runtime": "PyTorch CPU",
+      "device": "Intel64 Family 6 Model 165 Stepping 5, GenuineIntel, 6 threads",
+      "accuracy": 0.9833,
+      "size_mb": 44.77,
+      "median_ms": 23.41,
+      "p95_ms": 26.65
+    },
+    {
+      "runtime": "PyTorch CUDA",
+      "device": "Quadro RTX 4000",
+      "accuracy": 0.9833,
+      "size_mb": 44.77,
+      "median_ms": 3.55,
+      "p95_ms": 5.38
+    },
+    {
+      "runtime": "ONNX Runtime FP32",
+      "device": "Intel64 Family 6 Model 165 Stepping 5, GenuineIntel, 6 threads",
+      "accuracy": 0.9833,
+      "size_mb": 44.68,
+      "median_ms": 9.66,
+      "p95_ms": 10.51
+    },
+    {
+      "runtime": "ONNX Runtime INT8",
+      "device": "Intel64 Family 6 Model 165 Stepping 5, GenuineIntel, 6 threads",
+      "accuracy": 0.9722,
+      "size_mb": 11.29,
+      "median_ms": 5.73,
+      "p95_ms": 6.63
+    },
+    {
+      "runtime": "OpenCV DNN (C++)",
+      "device": "same CPU, Docker on WSL2, 12 threads",
+      "accuracy": null,
+      "size_mb": 44.68,
+      "median_ms": 15.92,
+      "p95_ms": 18.9
+    }
+  ],
+  "note": "Batch 1, one test image decoded beforehand; preprocessing and inference timed together, 200 calls after 20 warm-up calls. The C++ classifier reads the FP32 model and matches ONNX Runtime in the parity test, so its accuracy was not measured separately."
+}

@@ -1,8 +1,9 @@
 """ONNX export, ONNX Runtime inference and the fixture for the C++ parity test."""
 
 import json
+import tempfile
 import time
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from pathlib import Path
 
 import cv2
@@ -11,6 +12,14 @@ import numpy.typing as npt
 import onnx
 import onnxruntime as ort
 import torch
+from onnxruntime.quantization import (
+    CalibrationDataReader,
+    CalibrationMethod,
+    QuantFormat,
+    QuantType,
+    quantize_static,
+)
+from onnxruntime.quantization.shape_inference import quant_pre_process
 from torch import nn
 
 from sdi.dataset import CLASSES, Sample
@@ -53,6 +62,55 @@ def _drop_identities(graph: onnx.GraphProto) -> None:
             for i, name in enumerate(other.input):
                 if name == target:
                     other.input[i] = source
+
+
+class _Calibration(CalibrationDataReader):  # type: ignore[misc]
+    """Feeds preprocessed images to the quantiser, one at a time."""
+
+    def __init__(self, samples: Sequence[Sample]) -> None:
+        self._inputs: Iterator[dict[str, npt.NDArray[np.float32]]] = (
+            {"image": to_tensor(read_gray(s.path))[np.newaxis]} for s in samples
+        )
+
+    def get_next(self) -> dict[str, npt.NDArray[np.float32]] | None:
+        return next(self._inputs, None)
+
+
+def calibration_samples(samples: Sequence[Sample], per_class: int = 20) -> list[Sample]:
+    """The first ``per_class`` samples of each class, so calibration is the same on every run."""
+    return [
+        s for c in range(len(CLASSES)) for s in [x for x in samples if x.label == c][:per_class]
+    ]
+
+
+def quantize_onnx(source: Path, target: Path, calibration: Sequence[Sample]) -> Path:
+    """Write an INT8 copy of an exported model, calibrated statically on the given samples.
+
+    Weights are quantised per channel to signed 8 bit, activations to unsigned 8 bit, in the QDQ
+    format that ONNX Runtime fuses on the CPU. The softmax stays in float, so the output is still
+    a probability. Activation ranges come from the 99.999th percentile, which kept one more
+    validation image correct than min-max or entropy calibration (178 against 177 of 180).
+    Calibrate on training images only; the test split must stay unseen.
+    """
+    if not calibration:
+        raise ValueError("calibration needs at least one sample")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory() as tmp:
+        prepared = Path(tmp) / "prepared.onnx"
+        quant_pre_process(str(source), str(prepared))
+        softmax = [n.name for n in onnx.load(str(prepared)).graph.node if n.op_type == "Softmax"]
+        quantize_static(
+            str(prepared),
+            str(target),
+            _Calibration(calibration),
+            quant_format=QuantFormat.QDQ,
+            per_channel=True,
+            weight_type=QuantType.QInt8,
+            activation_type=QuantType.QUInt8,
+            nodes_to_exclude=softmax,
+            calibrate_method=CalibrationMethod.Percentile,
+        )
+    return target
 
 
 class OnnxClassifier:

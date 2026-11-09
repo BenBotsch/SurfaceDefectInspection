@@ -1,0 +1,1 @@
+{"runtime": "OpenCV DNN (C++)", "opencv": "4.6.0", "threads": 12, "iterations": 200, "median_ms": 15.916, "p95_ms": 18.896}

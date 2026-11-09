@@ -6,11 +6,19 @@ import platform
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import torch
 
 from sdi.baseline import HogSvm
+from sdi.benchmark import Row, Timing, benchmark_to_markdown, time_call
 from sdi.dataset import CLASSES, download, load_split
-from sdi.export import OnnxClassifier, export_onnx, parity_fixture
+from sdi.export import (
+    OnnxClassifier,
+    calibration_samples,
+    export_onnx,
+    parity_fixture,
+    quantize_onnx,
+)
 from sdi.metrics import (
     Report,
     SeedSummary,
@@ -19,6 +27,7 @@ from sdi.metrics import (
     summarize_seeds,
     to_markdown,
 )
+from sdi.preprocess import read_gray, to_tensor
 from sdi.train import TrainConfig, load, probabilities, train
 
 DATA = Path("data/neu-det")
@@ -55,6 +64,8 @@ def render(data: dict[str, Any]) -> str | None:
         s = data["summary"]
         summary = SeedSummary(tuple(s["seeds"]), tuple(s["accuracy"]), tuple(s["macro_f1"]))
         return seeds_to_markdown(data["model"], summary)
+    if "benchmark" in data:
+        return benchmark_to_markdown(data["benchmark"], data["note"])
     return None
 
 
@@ -187,7 +198,6 @@ def _figures(data: Path) -> None:
 def _gradcam(data: Path, run_dir: Path) -> None:
     from sdi import figures  # noqa: PLC0415
     from sdi.gradcam import grad_cam  # noqa: PLC0415
-    from sdi.preprocess import read_gray, to_tensor  # noqa: PLC0415
 
     model = load(run_dir / "model.pt")
     by_name = {s.path.name: s for s in load_split(data, "test")}
@@ -219,8 +229,74 @@ def _gradcam(data: Path, run_dir: Path) -> None:
         print(f"wrote {path}")
 
 
-def main(argv: list[str] | None = None) -> None:
-    """Run one command."""
+def _megabytes(path: Path) -> float:
+    return path.stat().st_size / 1e6
+
+
+def _benchmark(data: Path, run_dir: Path, iterations: int) -> None:
+    test = load_split(data, "test")
+    truth = [s.label for s in test]
+    fp32 = run_dir / "model.onnx"
+    if not fp32.is_file():
+        export_onnx(load(run_dir / "model.pt"), fp32)
+    int8 = quantize_onnx(
+        fp32, run_dir / "model_int8.onnx", calibration_samples(load_split(data, "train"))
+    )
+    int8_predicted, _ = OnnxClassifier(int8).predict(test)
+    _write(
+        evaluate("ResNet18 (ONNX INT8)", "test", CLASSES, truth, int8_predicted), "resnet18_int8"
+    )
+
+    # Every runtime gets the same decoded image and does its own preprocessing, like the C++ one.
+    gray = read_gray(test[0].path)
+    cpu = f"{platform.processor() or 'unknown CPU'}, {torch.get_num_threads()} threads"
+    rows = []
+    devices = [torch.device("cpu")] + ([torch.device("cuda")] if torch.cuda.is_available() else [])
+    for device in devices:
+        model = load(run_dir / "model.pt", device)
+        predicted = probabilities(model, test, device).argmax(axis=1)
+
+        def forward(model: torch.nn.Module = model, device: torch.device = device) -> object:
+            with torch.inference_mode():
+                # .cpu() waits for the GPU, so the time covers the whole inference.
+                return model(torch.from_numpy(to_tensor(gray))[None].to(device)).cpu()
+
+        timing = time_call(forward, iterations)
+        name = torch.cuda.get_device_name(device) if device.type == "cuda" else cpu
+        accuracy = float(np.mean(predicted == truth))
+        size = _megabytes(run_dir / "model.pt")
+        rows.append(Row(f"PyTorch {device.type.upper()}", name, accuracy, size, *_ms(timing)))
+    for label, path in (("ONNX Runtime FP32", fp32), ("ONNX Runtime INT8", int8)):
+        session = OnnxClassifier(path)
+        predicted_onnx, _ = session.predict(test)
+
+        def run(session: OnnxClassifier = session) -> object:
+            return session.probabilities(to_tensor(gray)[None])
+
+        timing = time_call(run, iterations)
+        accuracy = float(np.mean(np.array(predicted_onnx) == truth))
+        rows.append(Row(label, cpu, accuracy, _megabytes(path), *_ms(timing)))
+    cpp = RESULTS / "benchmark_cpp.json"
+    if cpp.is_file():
+        c = json.loads(cpp.read_text(encoding="utf-8"))
+        where = f"same CPU, Docker on WSL2, {c['threads']} threads"
+        rows.append(Row(c["runtime"], where, None, _megabytes(fp32), c["median_ms"], c["p95_ms"]))
+    note = (
+        f"Batch 1, one test image decoded beforehand; preprocessing and inference timed together, "
+        f"{iterations} calls after 20 warm-up calls. The C++ classifier reads the FP32 model and "
+        "matches ONNX Runtime in the parity test, so its accuracy was not measured separately."
+    )
+    _write_json("benchmark", {"benchmark": [r.to_dict() for r in rows], "note": note})
+    markdown = benchmark_to_markdown([r.to_dict() for r in rows], note)
+    write_text(RESULTS / "benchmark.md", markdown + "\n")
+    print(markdown)
+
+
+def _ms(timing: Timing) -> tuple[float, float]:
+    return timing.median_ms, timing.p95_ms
+
+
+def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="sdi", description="Steel surface defect classification on NEU-DET."
     )
@@ -243,9 +319,19 @@ def main(argv: list[str] | None = None) -> None:
     sub.add_parser("figures", help="render the README figures to docs/figures/")
     gradcam_cmd = sub.add_parser("gradcam", help="render Grad-CAM maps to docs/figures/")
     gradcam_cmd.add_argument("--run-dir", type=Path, default=RUNS)
+    bench_cmd = sub.add_parser(
+        "benchmark", help="quantise to INT8 and time each runtime on one image"
+    )
+    bench_cmd.add_argument("--run-dir", type=Path, default=RUNS)
+    bench_cmd.add_argument("--iterations", type=int, default=200)
     fixture = sub.add_parser("parity-fixture", help="write the fixture of the C++ parity test")
     fixture.add_argument("directory", type=Path)
-    args = parser.parse_args(argv)
+    return parser
+
+
+def main(argv: list[str] | None = None) -> None:
+    """Run one command."""
+    args = _parser().parse_args(argv)
 
     if args.command == "download":
         fetched = download(args.data, progress=lambda n: print(f"\r{n} files checked", end=""))
@@ -269,5 +355,7 @@ def main(argv: list[str] | None = None) -> None:
         _figures(args.data)
     elif args.command == "gradcam":
         _gradcam(args.data, args.run_dir)
+    elif args.command == "benchmark":
+        _benchmark(args.data, args.run_dir, args.iterations)
     elif args.command == "parity-fixture":
         print(parity_fixture(args.directory))

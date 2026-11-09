@@ -21,4 +21,7 @@ target_link_libraries(test_parity PRIVATE sdi_classifier)
 set(SDI_FIXTURE "" CACHE PATH "directory written by `sdi parity-fixture`")
 if(SDI_FIXTURE)
   add_test(NAME parity COMMAND test_parity ${SDI_FIXTURE})
+  add_test(NAME bench COMMAND sdi-classify --bench 3 ${SDI_FIXTURE}/model.onnx
+                                ${SDI_FIXTURE}/image.png)
+  set_tests_properties(bench PROPERTIES PASS_REGULAR_EXPRESSION "\"median_ms\": [0-9]")
 endif()
