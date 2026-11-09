@@ -21,10 +21,10 @@ def grad_cam(
     """The class activation map of one image, scaled to the input size and to [0, 1].
 
     Args:
-        model: A classifier returning class scores; it is put in eval mode.
+        model: A classifier returning class scores. It is put in eval mode.
         tensor: One preprocessed image, shape 1 x C x H x W.
-        target: Class to explain; the predicted class if unset.
-        layer: Layer whose activations are weighted; ``model.layer4`` of a ResNet if unset.
+        target: Class to explain, by default the predicted class.
+        layer: Layer whose activations are weighted, by default ``model.layer4`` of a ResNet.
 
     Returns:
         An H x W map, 0 where the layer gives no evidence for the class.
@@ -45,7 +45,7 @@ def grad_cam(
         handle.remove()
     index = int(scores.argmax(dim=1)) if target is None else target
     activations = captured["activations"]
-    # The gradient of the score with respect to the activations only; the weights get none.
+    # Only the activations receive a gradient. The weights get none.
     (gradients,) = torch.autograd.grad(scores[0, index], activations)
     weights = gradients.mean(dim=(2, 3), keepdim=True)
     cam = functional.relu((weights * activations).sum(dim=1, keepdim=True))

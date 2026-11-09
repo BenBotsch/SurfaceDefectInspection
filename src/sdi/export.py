@@ -90,7 +90,7 @@ def quantize_onnx(source: Path, target: Path, calibration: Sequence[Sample]) -> 
     format that ONNX Runtime fuses on the CPU. The softmax stays in float, so the output is still
     a probability. Activation ranges come from the 99.999th percentile, which kept one more
     validation image correct than min-max or entropy calibration (178 against 177 of 180).
-    Calibrate on training images only; the test split must stay unseen.
+    Calibrate on training images only, so that the test split stays unseen.
     """
     if not calibration:
         raise ValueError("calibration needs at least one sample")

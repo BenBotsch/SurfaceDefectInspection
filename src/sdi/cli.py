@@ -1,4 +1,4 @@
-"""Command line of the project; ``sdi --help`` lists the commands."""
+"""Command line of the project. ``sdi --help`` lists the commands."""
 
 import argparse
 import json
@@ -282,9 +282,10 @@ def _benchmark(data: Path, run_dir: Path, iterations: int) -> None:
         where = f"same CPU, Docker on WSL2, {c['threads']} threads"
         rows.append(Row(c["runtime"], where, None, _megabytes(fp32), c["median_ms"], c["p95_ms"]))
     note = (
-        f"Batch 1, one test image decoded beforehand; preprocessing and inference timed together, "
-        f"{iterations} calls after 20 warm-up calls. The C++ classifier reads the FP32 model and "
-        "matches ONNX Runtime in the parity test, so its accuracy was not measured separately."
+        f"Batch 1, with one test image decoded beforehand. Preprocessing and inference are timed "
+        f"together over {iterations} calls after 20 warm-up calls. The C++ classifier reads the "
+        "FP32 model and matches ONNX Runtime in the parity test, so its accuracy was not measured "
+        "separately."
     )
     _write_json("benchmark", {"benchmark": [r.to_dict() for r in rows], "note": note})
     markdown = benchmark_to_markdown([r.to_dict() for r in rows], note)

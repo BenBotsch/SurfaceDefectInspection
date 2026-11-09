@@ -51,7 +51,7 @@ class Report:
 
     @classmethod
     def from_dict(cls, data: Mapping[str, Any]) -> "Report":
-        """A report from :meth:`to_dict` output; keys it does not know are ignored."""
+        """A report from :meth:`to_dict` output. Unknown keys are ignored."""
         return cls(
             model=data["model"],
             split=data["split"],

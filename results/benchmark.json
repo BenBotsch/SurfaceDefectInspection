@@ -41,5 +41,5 @@
       "p95_ms": 18.9
     }
   ],
-  "note": "Batch 1, one test image decoded beforehand; preprocessing and inference timed together, 200 calls after 20 warm-up calls. The C++ classifier reads the FP32 model and matches ONNX Runtime in the parity test, so its accuracy was not measured separately."
+  "note": "Batch 1, with one test image decoded beforehand. Preprocessing and inference are timed together over 200 calls after 20 warm-up calls. The C++ classifier reads the FP32 model and matches ONNX Runtime in the parity test, so its accuracy was not measured separately."
 }

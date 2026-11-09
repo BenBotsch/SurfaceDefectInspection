@@ -53,7 +53,7 @@ def jpeg(image: Image, quality: float, _: np.random.Generator) -> Image:
 
 @dataclass(frozen=True, slots=True)
 class Corruption:
-    """A corruption and its strengths; the first strength is the clean image."""
+    """A corruption and its strengths. The first strength is the clean image."""
 
     name: str
     parameter: str
@@ -61,7 +61,7 @@ class Corruption:
     apply: Apply
 
     def __call__(self, image: Image, level: int, rng: np.random.Generator) -> Image:
-        """The image corrupted at ``level``, an index into ``strengths``; level 0 is a copy.
+        """The image corrupted at ``level``, an index into ``strengths``. Level 0 is a copy.
 
         Raises:
             ValueError: If the level is not an index into ``strengths``.
@@ -126,8 +126,8 @@ def robustness_to_markdown(data: dict[str, Any]) -> str:
     """A Markdown table with one row per corruption and level, one column per model."""
     models = data["models"]
     lines = [
-        f"Test accuracy on corrupted copies of the {data['images']} test images; "
-        "level 0 is the clean image.",
+        f"Test accuracy on corrupted copies of the {data['images']} test images. "
+        "Level 0 is the clean image.",
         "",
         "| Corruption | Level | Strength | " + " | ".join(models) + " |",
         "| --- | ---: | ---: | " + " | ".join("---:" for _ in models) + " |",

@@ -1,4 +1,4 @@
-Test accuracy on corrupted copies of the 180 test images; level 0 is the clean image.
+Test accuracy on corrupted copies of the 180 test images. Level 0 is the clean image.
 
 | Corruption | Level | Strength | HOG + linear SVM | ResNet18 | ResNet18 INT8 |
 | --- | ---: | ---: | ---: | ---: | ---: |

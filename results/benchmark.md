@@ -6,4 +6,4 @@
 | ONNX Runtime INT8 | Intel64 Family 6 Model 165 Stepping 5, GenuineIntel, 6 threads | 0.972 | 11.3 MB | 5.73 ms | 6.63 ms |
 | OpenCV DNN (C++) | same CPU, Docker on WSL2, 12 threads | n/a | 44.7 MB | 15.92 ms | 18.90 ms |
 
-Batch 1, one test image decoded beforehand; preprocessing and inference timed together, 200 calls after 20 warm-up calls. The C++ classifier reads the FP32 model and matches ONNX Runtime in the parity test, so its accuracy was not measured separately.
+Batch 1, with one test image decoded beforehand. Preprocessing and inference are timed together over 200 calls after 20 warm-up calls. The C++ classifier reads the FP32 model and matches ONNX Runtime in the parity test, so its accuracy was not measured separately.

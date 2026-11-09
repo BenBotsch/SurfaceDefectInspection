@@ -67,7 +67,7 @@ DARK = Theme(
 )
 THEMES = (LIGHT, DARK)
 
-# Slot of each model in the palette; a model keeps its colour in every figure.
+# Slot of each model in the palette. A model keeps its colour in every figure.
 RESNET, BASELINE, THIRD = 0, 1, 2
 
 
@@ -268,8 +268,8 @@ def training_figure(histories: dict[int, list[dict[str, float]]]) -> Callable[[T
             colour = theme.series[slot]
             for ax, key in ((loss_ax, "loss"), (f1_ax, "val_macro_f1")):
                 values = [h[key] for h in histories[seed]]
-                # The seeds end on almost the same values, so the legend names them, not
-                # direct labels at the line ends; distinct markers keep them apart without colour.
+                # The seeds end on almost the same values, so the legend names them instead of
+                # direct labels at the line ends. Distinct markers keep them apart without colour.
                 ax.plot(epochs, values, color=colour, marker=markers[slot], label=f"seed {seed}")
         loss_ax.set_yscale("log")
         loss_ax.set_title("Training loss")

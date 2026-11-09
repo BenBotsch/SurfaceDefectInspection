@@ -41,7 +41,7 @@ def time_call(
 
 @dataclass(frozen=True, slots=True)
 class Row:
-    """One runtime of the benchmark; accuracy is None where it was not measured."""
+    """One runtime of the benchmark. Accuracy is None where it was not measured."""
 
     runtime: str
     device: str
