@@ -136,6 +136,11 @@ Windows runs. It loads the FP32 model only, because the importer of OpenCV 4.6 D
 `DequantizeLinear` nodes of the quantised graph. The table is generated as
 [results/benchmark.md](results/benchmark.md).
 
+The pipeline does not measure the test accuracy of the C++ classifier, hence n/a. A separate script
+ran the model trained with the defaults at commit `19773a8` through the C++ preprocessing on all
+180 test images once: it predicted the same class as ONNX Runtime for every image, so its accuracy
+is also 0.983, and no probability differed by more than 1.1e-6.
+
 ## What these numbers do and do not say
 
 NEU-DET is close to saturated for classification. The validation F1 reaches 1.0 within four epochs,
@@ -218,7 +223,10 @@ uv run sdi benchmark
 - **Parity.** `src/sdi/preprocess.py` and `cpp/src/classifier.cpp` implement the same resize and
   normalisation. `sdi parity-fixture` writes an untrained model, a synthetic image and the
   probabilities Python computes, so the C++ test needs neither the dataset nor a trained model.
-  The C++ probabilities match ONNX Runtime to within 7.5e-8.
+  The C++ probabilities match ONNX Runtime to within 7.5e-8, and the test fails above 1e-5. It
+  also checks itself: six plausible porting errors (nearest or area interpolation, the red channel
+  constants, no normalisation, swapped axes, resizing in float) must each exceed the tolerance.
+  The earlier tolerance of 1e-4 let resizing in float pass at 5.4e-5.
 - **INT8.** The softmax stays in float, so the quantised model still returns probabilities.
   Calibration never reads the test split.
 - **Reproducible reports.** Results are written as JSON first. `sdi report` renders the Markdown
