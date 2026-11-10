@@ -6,6 +6,6 @@ RUN apt-get update \
 COPY --from=ghcr.io/astral-sh/uv:0.11 /uv /usr/local/bin/uv
 WORKDIR /src
 COPY . .
-RUN uv sync --frozen --no-default-groups && uv run sdi parity-fixture /tmp/fixture
+RUN uv sync --frozen --no-default-groups && uv run --no-sync sdi parity-fixture /tmp/fixture
 RUN cmake -S cpp -B build -DSDI_FIXTURE=/tmp/fixture && cmake --build build -j \
     && ctest --test-dir build --output-on-failure
