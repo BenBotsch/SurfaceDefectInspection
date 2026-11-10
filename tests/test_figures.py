@@ -94,8 +94,9 @@ def test_robustness_legend_takes_the_free_cell_of_the_grid(tmp_path: Path) -> No
     legend = axes[5].get_legend()
     assert len(axes) == 6
     assert legend is not None
+    # From the highest to the lowest mean accuracy, not in the order of ``models``.
     assert [t.get_text() for t in legend.get_texts()] == [
         "ResNet18",
-        "HOG + linear SVM",
         "ResNet18 INT8",
+        "HOG + linear SVM",
     ]

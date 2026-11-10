@@ -36,6 +36,8 @@ PHOTO = figkit.PHOTO
 RESNET, BASELINE, THIRD = 0, 1, 2
 
 _SIZE = figkit.tokens()["font"]
+# Width of a photo grid: the canvas minus its margins, so that the images fill the canvas.
+_GRID_WIDTH = figkit.WEB_WIDTH - 2 * figkit.export.PAD
 
 
 def _image_axes(ax: Any) -> None:
@@ -52,12 +54,16 @@ def samples_figure(samples: Sequence[Sample], per_class: int = 3) -> Draw:
     every run.
     """
     columns = [[s for s in samples if s.label == c][:per_class] for c in range(len(CLASSES))]
+    gap, title = 0.05, 0.45
+    # Square cells that fill the width; the titles get a fixed band above the grid.
+    cell = _GRID_WIDTH / (len(CLASSES) + (len(CLASSES) - 1) * gap)
+    grid_height = cell * (per_class + (per_class - 1) * gap)
 
     def draw(theme: Theme) -> Figure:
         figure, axes = plt.subplots(
             per_class,
             len(CLASSES),
-            figsize=(1.55 * len(CLASSES), 1.6 * per_class),
+            figsize=(_GRID_WIDTH, grid_height + title),
             squeeze=False,
         )
         for col, column in enumerate(columns):
@@ -73,7 +79,14 @@ def samples_figure(samples: Sequence[Sample], per_class: int = 3) -> Draw:
                 color=theme.ink,
                 linespacing=1.2,
             )
-        figure.subplots_adjust(wspace=0.05, hspace=0.05)
+        figure.subplots_adjust(
+            left=0,
+            right=1,
+            bottom=0,
+            top=grid_height / (grid_height + title),
+            wspace=gap,
+            hspace=gap,
+        )
         return figure
 
     return draw
@@ -118,34 +131,51 @@ def confusion_figure(reports: Sequence[Report]) -> Draw:
 
 
 def per_class_figure(baseline: Report, model: Report) -> Draw:
-    """Per-class F1 of the baseline and the model as grouped horizontal bars."""
+    """Per-class F1 of the baseline and the model as a dumbbell chart, largest gain on top.
+
+    Each class is one row: a dot for each model and a line between them, so the gain reads as a
+    length. The two models also differ in marker shape, so they are not told apart by colour alone.
+    """
+    before = {c.name: c.f1 for c in baseline.classes}
+    rows = sorted(model.classes, key=lambda c: c.f1 - before[c.name], reverse=True)
 
     def draw(theme: Theme) -> Figure:
-        figure, ax = plt.subplots(figsize=(6.4, 3.6))
-        names = [c.name.replace("_", " ") for c in model.classes]
-        y = np.arange(len(names))
-        height = 0.36
-        for offset, report, slot in ((-1, baseline, BASELINE), (1, model, RESNET)):
-            values = [c.f1 for c in report.classes]
-            # The offset leaves a thin gap between the two bars of a class.
-            bars = ax.barh(
-                y + offset * (height / 2 + 0.02),
+        figure, ax = plt.subplots(figsize=(figkit.WEB_WIDTH, 3.3))
+        y = np.arange(len(rows))
+        low = [before[c.name] for c in rows]
+        high = [c.f1 for c in rows]
+        ax.hlines(y, low, high, color=theme.grid, linewidth=3, zorder=1)
+        for values, report, slot, marker in (
+            (low, baseline, BASELINE, "s"),
+            (high, model, RESNET, "o"),
+        ):
+            ax.plot(
                 values,
-                height=height,
+                y,
+                linestyle="none",
+                marker=marker,
+                markersize=8,
                 color=theme.series[slot],
                 label=report.model,
+                zorder=2,
             )
-            figkit.bar_labels(ax, bars, theme)
-        ax.set_yticks(y, names)
+        for row, (a, b) in enumerate(zip(low, high, strict=True)):
+            # The smaller value is labelled on the left of its dot, the larger on the right.
+            left, right = min(a, b), max(a, b)
+            figkit.value(ax, left - 0.025, row, f"{left:.2f}", theme, ha="right", va="center")
+            figkit.value(ax, right + 0.025, row, f"{right:.2f}", theme, ha="left", va="center")
+        ax.set_yticks(y, [c.name.replace("_", " ") for c in rows])
         ax.invert_yaxis()
-        ax.set_xlim(0, 1.08)
-        ax.set_xticks(np.linspace(0, 1, 6))
-        ax.spines["bottom"].set_bounds(0, 1)
+        # The axis starts one tick of 0.2 below the lowest value, leaving room for its label.
+        start = max(0.0, math.floor(min(low + high) * 5) / 5 - 0.2)
+        ax.set_xlim(start, 1.1)
+        ax.set_xticks(np.arange(start, 1.0001, 0.2))
+        ax.spines["bottom"].set_bounds(start, 1)
         figkit.grid(ax, "x")
         figkit.category_axis(ax, "y")
         ax.set_xlabel("F1 on the test split")
-        ax.set_title("Per-class F1")
-        ax.legend(loc="lower right", bbox_to_anchor=(1.0, 1.0), ncol=2, handlelength=1.2)
+        figkit.title(ax, "Per-class F1", theme)
+        figkit.legend_top(ax)
         figure.set_layout_engine("tight")
         return figure
 
@@ -153,20 +183,29 @@ def per_class_figure(baseline: Report, model: Report) -> Draw:
 
 
 def training_figure(histories: dict[int, list[dict[str, float]]]) -> Draw:
-    """Training loss and validation macro F1 per epoch, one line per seed, in two panels."""
-    seeds = sorted(histories)[:3]
+    """Training loss and validation macro F1 per epoch in two panels.
+
+    The seeds end on almost the same values, so one line shows their mean and a band the range
+    from the lowest to the highest seed, instead of three lines on top of each other.
+    """
+    seeds = sorted(histories)
+    epochs = min(len(histories[s]) for s in seeds)
+
+    def series(key: str) -> npt.NDArray[np.float64]:
+        return np.array([[h[key] for h in histories[s][:epochs]] for s in seeds], dtype=float)
 
     def draw(theme: Theme) -> Figure:
         figure, (loss_ax, f1_ax) = plt.subplots(1, 2, figsize=(figkit.WEB_WIDTH, 2.9))
-        markers = ("o", "s", "^")
-        for slot, seed in enumerate(seeds):
-            epochs = [h["epoch"] for h in histories[seed]]
-            colour = theme.series[slot]
-            for ax, key in ((loss_ax, "loss"), (f1_ax, "val_macro_f1")):
-                values = [h[key] for h in histories[seed]]
-                # The seeds end on almost the same values, so the legend names them instead of
-                # direct labels at the line ends. Distinct markers keep them apart without colour.
-                ax.plot(epochs, values, color=colour, marker=markers[slot], label=f"seed {seed}")
+        x = np.arange(1, epochs + 1)
+        colour = theme.series[RESNET]
+        for ax, key in ((loss_ax, "loss"), (f1_ax, "val_macro_f1")):
+            values = series(key)
+            # The mean of a log-scaled loss is the geometric mean, so the line sits inside the band.
+            mean = np.exp(np.log(values).mean(axis=0)) if key == "loss" else values.mean(axis=0)
+            ax.fill_between(
+                x, values.min(axis=0), values.max(axis=0), color=colour, alpha=0.18, linewidth=0
+            )
+            ax.plot(x, mean, color=colour)
         loss_ax.set_yscale("log")
         loss_ax.set_title("Training loss")
         loss_ax.set_ylabel("cross-entropy (log scale)")
@@ -176,9 +215,16 @@ def training_figure(histories: dict[int, list[dict[str, float]]]) -> Draw:
             ax.set_xlabel("epoch")
             ax.yaxis.grid(True)
             ax.set_axisbelow(True)
-            ax.set_xlim(0.5, max(len(h) for h in histories.values()) + 0.5)
+            ax.set_xlim(1, epochs)
             ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-        f1_ax.legend(loc="lower right", handlelength=1.6)
+        figure.text(
+            0.01,
+            0.0,
+            f"Line: mean of {len(seeds)} seeds. Band: lowest to highest seed.",
+            fontsize=_SIZE["annotation"],
+            color=theme.secondary,
+            va="top",
+        )
         figure.set_layout_engine("tight", w_pad=3)
         return figure
 
@@ -238,7 +284,7 @@ def gradcam_figure(explanations: Sequence[Explanation], columns: int | None = No
 
     def draw(theme: Theme) -> Figure:
         gap, left, right, bottom_margin, top_margin = 0.06, 0.01, 0.99, 0.13, 0.9
-        width = 1.45 * per_row
+        width = _GRID_WIDTH
         # Height at which square images fill the grid without empty bands between the rows.
         cell = width * (right - left) / (per_row + (per_row - 1) * gap)
         height = cell * (2 + gap) / (top_margin - bottom_margin)
@@ -322,6 +368,11 @@ def robustness_figure(data: dict[str, Any], columns: int | None = None) -> Draw:
         first = axes[0]
         first.text(0, 1 / 6 + 0.02, "chance", fontsize=_SIZE["annotation"], color=theme.secondary)
         handles, labels = first.get_legend_handles_labels()
+        # The legend lists the models from the highest to the lowest mean accuracy, the order in
+        # which their lines run through the panels.
+        mean = {name: np.mean([np.mean(p["accuracy"][name]) for p in panels]) for name in models}
+        order = sorted(range(len(labels)), key=lambda i: -mean[labels[i]])
+        handles, labels = [handles[i] for i in order], [labels[i] for i in order]
         for ax in spare:
             ax.axis("off")
         if spare:

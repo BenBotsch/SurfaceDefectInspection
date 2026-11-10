@@ -61,7 +61,7 @@ makes three errors, all between inclusion and scratches.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/figures/per_class_f1-dark.svg">
-  <img alt="Per-class F1 of HOG + linear SVM and ResNet18 as grouped bars" src="docs/figures/per_class_f1.svg">
+  <img alt="Per-class F1 of HOG + linear SVM and ResNet18 as a dumbbell chart, largest gain on top: pitted surface rises from 0.42 to 1.00, scratches from 0.84 to 0.95" src="docs/figures/per_class_f1.svg">
 </picture>
 
 Training is short. The validation F1 of all three seeds reaches 1.0 within four epochs, with single
@@ -69,7 +69,7 @@ dips afterwards, and the first epoch with the best validation F1 is kept.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/figures/training-dark.svg">
-  <img alt="Training loss on a log scale and validation macro F1 per epoch for seeds 0, 1 and 2" src="docs/figures/training.svg">
+  <img alt="Training loss on a log scale and validation macro F1 per epoch, as the mean of seeds 0, 1 and 2 with a band from the lowest to the highest seed" src="docs/figures/training.svg">
 </picture>
 
 The three misclassified test images, with the class the model chose and its probability. All three

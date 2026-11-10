@@ -9,12 +9,13 @@ can be used unchanged on other web pages.
 - Charts (`confusion`, `per_class_f1`, `training`, `robustness`) are SVG and stay sharp at any
   width. A transparent PNG with the same name is the fallback for places without SVG.
 - Photographs (`samples`, `errors`, `gradcam`) are WebP, with a transparent PNG as fallback. All
-  raster files are rendered at 250 dpi, so a full-width figure is about 1600 pixels wide and sharp
-  on high-density screens in a column of up to 800 CSS pixels.
-- Each figure is at most 6.4 inches wide, so its text is about 15 pixels high in a column of 800
-  CSS pixels. Grad-CAM wraps into two rows and the robustness panels into a 3 x 2 grid.
-- `uv run figkit check docs/figures` checks the pairs, the transparency and the file sizes; CI runs
-  it on every push.
+  raster files are 1600 pixels wide, sharp on high-density screens in a column of up to 800 CSS
+  pixels.
+- Every figure has the same 6.4 inch canvas (460.8 pt as SVG), so text has the same size in all of
+  them, about 15 pixels in a column of 800 CSS pixels. Grad-CAM wraps into two rows and the
+  robustness panels into a 3 x 2 grid.
+- `uv run figkit check docs/figures` checks the pairs, the transparency, the canvas width and the
+  file sizes; CI runs it on every push.
 
 Scale the images with the column, for example with `width: 100%; height: auto`.
 
