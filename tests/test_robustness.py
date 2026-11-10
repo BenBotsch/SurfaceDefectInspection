@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from pathlib import Path
 
+import figkit
 import numpy as np
 import pytest
 
@@ -62,5 +63,11 @@ def test_evaluation_is_deterministic_and_renders(tmp_path: Path) -> None:
     markdown = robustness_to_markdown(first)
     assert render(first) == markdown
     assert "| Gaussian noise | 0 | sigma 0 | 0.500 | 1.000 |" in markdown
-    paths = figures.render(tmp_path, "robustness", figures.robustness_figure(first))
-    assert [p.name for p in paths] == ["robustness.png", "robustness-dark.png"]
+    draw = figures.robustness_figure(first, columns=3)
+    paths = figkit.render(tmp_path, "robustness", draw, figures.CHART)
+    assert [p.name for p in paths] == [
+        "robustness.svg",
+        "robustness.png",
+        "robustness-dark.svg",
+        "robustness-dark.png",
+    ]

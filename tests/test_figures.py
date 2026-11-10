@@ -1,7 +1,9 @@
 from pathlib import Path
 
 import cv2
+import figkit
 import numpy as np
+from figkit.check import check
 from PIL import Image
 
 from sdi import figures
@@ -9,80 +11,91 @@ from sdi.dataset import CLASSES, Sample
 from sdi.metrics import evaluate
 
 
-def test_every_figure_is_written_for_light_and_dark_pages(tmp_path: Path) -> None:
+def _image(tmp_path: Path) -> Path:
     image = tmp_path / "crazing_1.png"
     cv2.imwrite(str(image), np.full((200, 200), 128, dtype=np.uint8))
-    samples = [Sample(image, label) for label in range(len(CLASSES))]
-    labels = list(range(len(CLASSES)))
-    report = evaluate("m", "test", CLASSES, labels, labels[::-1])
-    history = [{"epoch": 1, "loss": 0.5, "val_macro_f1": 0.8}]
-    jobs = {
-        "samples": figures.samples_figure(samples, per_class=1),
-        "confusion": figures.confusion_figure([report, report]),
-        "per_class_f1": figures.per_class_figure(report, report),
-        "training": figures.training_figure({0: history, 1: history}),
-        "errors": figures.errors_figure([figures.Prediction(image, "a", "b", 0.6)] * 2),
-        "gradcam": figures.gradcam_figure(
-            [figures.Explanation(image, "a", "p = 1", np.eye(8, dtype=np.float32))] * 2
-        ),
-    }
-
-    for name, draw in jobs.items():
-        paths = figures.render(tmp_path / "out", name, draw)
-
-        assert [p.name for p in paths] == [f"{name}.png", f"{name}-dark.png"]
-        assert all(cv2.imread(str(p)) is not None for p in paths)
+    return image
 
 
 def _explanations(tmp_path: Path, count: int) -> list[figures.Explanation]:
-    image = tmp_path / "crazing_1.png"
-    cv2.imwrite(str(image), np.full((200, 200), 128, dtype=np.uint8))
-    return [figures.Explanation(image, "a", "p = 1", np.eye(8, dtype=np.float32))] * count
+    cam = np.eye(8, dtype=np.float32)
+    return [figures.Explanation(_image(tmp_path), "a", "p = 1", cam)] * count
 
 
-def test_web_photo_is_transparent_webp_of_fixed_width(tmp_path: Path) -> None:
-    draw = figures.gradcam_figure(_explanations(tmp_path, 7), columns=3)
-
-    paths = figures.render(tmp_path / "web", "gradcam", draw, output=figures.WEB_PHOTO)
-
-    assert [p.name for p in paths] == ["gradcam.webp", "gradcam-dark.webp"]
-    for path in paths:
-        with Image.open(path) as image:
-            assert image.width == figures.WEB_PHOTO.pixels
-            assert image.mode == "RGBA"
-            assert image.getchannel("A").getextrema()[0] == 0
-
-
-def test_web_chart_is_svg_without_background_or_date(tmp_path: Path) -> None:
-    data = {
-        "models": ["ResNet18", "HOG + linear SVM"],
+def _robustness(panels: int) -> dict[str, object]:
+    return {
+        "models": ["ResNet18", "HOG + linear SVM", "ResNet18 INT8"],
         "robustness": [
             {
                 "name": f"c{i}",
                 "parameter": "p",
                 "strengths": [0, 1],
-                "accuracy": {"ResNet18": [1.0, 0.5], "HOG + linear SVM": [0.6, 0.3]},
+                "accuracy": {
+                    "ResNet18": [1.0, 0.5],
+                    "HOG + linear SVM": [0.6, 0.3],
+                    "ResNet18 INT8": [1.0, 0.4],
+                },
             }
-            for i in range(5)
+            for i in range(panels)
         ],
     }
-    draw = figures.robustness_figure(data, columns=3)
-
-    first = figures.render(tmp_path / "a", "robustness", draw, output=figures.WEB)
-    second = figures.render(tmp_path / "b", "robustness", draw, output=figures.WEB)
-
-    text = first[0].read_text(encoding="utf-8")
-    assert first[0].name == "robustness.svg"
-    assert "<dc:date>" not in text
-    assert f"fill: {figures.LIGHT.surface}" not in text
-    assert [p.read_bytes() for p in first] == [p.read_bytes() for p in second]
 
 
-def test_wide_figure_is_scaled_to_the_web_width(tmp_path: Path) -> None:
-    wide = figures.gradcam_figure(_explanations(tmp_path, 9))
-    output = figures.Output(format="png", dpi=50, width=figures.WEB_WIDTH)
+def test_every_figure_is_written_transparent_for_light_and_dark_pages(tmp_path: Path) -> None:
+    image = _image(tmp_path)
+    samples = [Sample(image, label) for label in range(len(CLASSES))]
+    labels = list(range(len(CLASSES)))
+    report = evaluate("m", "test", CLASSES, labels, labels[::-1])
+    history = [{"epoch": 1, "loss": 0.5, "val_macro_f1": 0.8}]
+    jobs = {
+        "samples": (figures.samples_figure(samples, per_class=1), figures.PHOTO),
+        "confusion": (figures.confusion_figure([report, report]), figures.CHART),
+        "per_class_f1": (figures.per_class_figure(report, report), figures.CHART),
+        "training": (figures.training_figure({0: history, 1: history}), figures.CHART),
+        "errors": (
+            figures.errors_figure([figures.Prediction(image, "a", "b", 0.6)] * 2),
+            figures.PHOTO,
+        ),
+        "gradcam": (figures.gradcam_figure(_explanations(tmp_path, 2)), figures.PHOTO),
+        "robustness": (figures.robustness_figure(_robustness(5), columns=3), figures.CHART),
+    }
+    out = tmp_path / "out"
 
-    (path, *_) = figures.render(tmp_path, "wide", wide, themes=[figures.LIGHT], output=output)
+    for name, (draw, outputs) in jobs.items():
+        paths = figkit.render(out, name, draw, outputs)
 
-    with Image.open(path) as image:
-        assert image.width <= (figures.WEB_WIDTH + 0.3) * 50
+        formats = [o.format for o in outputs]
+        expected = [f"{name}{s}.{f}" for s in ("", "-dark") for f in formats]
+        assert [p.name for p in paths] == expected
+    # Pairs, transparency and file sizes, as `figkit check` tests them in CI.
+    assert check(out) == []
+
+
+def test_gradcam_wraps_into_rows_within_the_web_width(tmp_path: Path) -> None:
+    draw = figures.gradcam_figure(_explanations(tmp_path, 7), columns=3)
+
+    paths = figkit.render(tmp_path, "gradcam", draw, figures.PHOTO, themes=[figkit.DARK])
+
+    with Image.open(paths[0]) as image:
+        assert image.mode == "RGBA"
+        assert image.getchannel("A").getextrema()[0] == 0
+        assert image.width <= (figkit.WEB_WIDTH + 0.3) * figkit.RASTER_DPI
+        # Three rows of image pairs are taller than wide.
+        assert image.height > image.width
+
+
+def test_robustness_legend_takes_the_free_cell_of_the_grid(tmp_path: Path) -> None:
+    draw = figures.robustness_figure(_robustness(5), columns=3)
+
+    with figkit.styled(figkit.LIGHT):
+        figure = draw(figkit.LIGHT)
+    axes = figure.get_axes()
+
+    legend = axes[5].get_legend()
+    assert len(axes) == 6
+    assert legend is not None
+    assert [t.get_text() for t in legend.get_texts()] == [
+        "ResNet18",
+        "HOG + linear SVM",
+        "ResNet18 INT8",
+    ]

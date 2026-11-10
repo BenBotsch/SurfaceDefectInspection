@@ -14,8 +14,8 @@ of the model, a robustness study and a latency benchmark show what changes on th
 notebook result to an inspection station.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/samples-dark.png">
-  <img alt="Three test images for each of the six NEU-DET classes: crazing, inclusion, patches, pitted surface, rolled-in scale and scratches" src="docs/figures/samples.png">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/samples-dark.webp">
+  <img alt="Three test images for each of the six NEU-DET classes: crazing, inclusion, patches, pitted surface, rolled-in scale and scratches" src="docs/figures/samples.webp">
 </picture>
 
 ## Results at a glance
@@ -55,29 +55,29 @@ classes crazing, patches and pitted surface, which HOG describes badly. The ResN
 makes three errors, all between inclusion and scratches.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/confusion-dark.png">
-  <img alt="Row-normalised confusion matrices of HOG + linear SVM and ResNet18 on the test split" src="docs/figures/confusion.png">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/confusion-dark.svg">
+  <img alt="Row-normalised confusion matrices of HOG + linear SVM and ResNet18 on the test split" src="docs/figures/confusion.svg">
 </picture>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/per_class_f1-dark.png">
-  <img alt="Per-class F1 of HOG + linear SVM and ResNet18 as grouped bars" src="docs/figures/per_class_f1.png">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/per_class_f1-dark.svg">
+  <img alt="Per-class F1 of HOG + linear SVM and ResNet18 as grouped bars" src="docs/figures/per_class_f1.svg">
 </picture>
 
 Training is short. The validation F1 of all three seeds reaches 1.0 within four epochs, with single
 dips afterwards, and the first epoch with the best validation F1 is kept.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/training-dark.png">
-  <img alt="Training loss on a log scale and validation macro F1 per epoch for seeds 0, 1 and 2" src="docs/figures/training.png">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/training-dark.svg">
+  <img alt="Training loss on a log scale and validation macro F1 per epoch for seeds 0, 1 and 2" src="docs/figures/training.svg">
 </picture>
 
 The three misclassified test images, with the class the model chose and its probability. All three
 show elongated marks along the rolling direction, where inclusions and scratches look alike.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/errors-dark.png">
-  <img alt="The three misclassified test images with true class, predicted class and confidence" src="docs/figures/errors.png">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/errors-dark.webp">
+  <img alt="The three misclassified test images with true class, predicted class and confidence" src="docs/figures/errors.webp">
 </picture>
 
 ## What the model looks at
@@ -91,8 +91,8 @@ rather than along it. In both scratches images that were taken for inclusions, t
 the scratch and not on it, so the model decided on the surrounding surface.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/gradcam-dark.png">
-  <img alt="Grad-CAM maps for one correct test image per class and for the three misclassified images" src="docs/figures/gradcam.png">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/gradcam-dark.webp">
+  <img alt="Grad-CAM maps for one correct test image per class and for the three misclassified images" src="docs/figures/gradcam.webp">
 </picture>
 
 ## Robustness
@@ -102,8 +102,8 @@ offset, reduced contrast and JPEG compression. Level 0 is the clean image, and t
 so every model sees the same corrupted images.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/robustness-dark.png">
-  <img alt="Test accuracy of HOG + SVM, ResNet18 and ResNet18 INT8 over five levels of five corruptions" src="docs/figures/robustness.png">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/robustness-dark.svg">
+  <img alt="Test accuracy of HOG + SVM, ResNet18 and ResNet18 INT8 over five levels of five corruptions" src="docs/figures/robustness.svg">
 </picture>
 
 The ResNet18 is far less robust than its clean accuracy suggests. Gaussian noise with a standard
@@ -171,10 +171,9 @@ The multi-seed table, the figures and the studies above:
 uv run sdi train --seed 1 --run-dir runs/seed1
 uv run sdi train --seed 2 --run-dir runs/seed2
 uv run sdi seeds runs runs/seed1 runs/seed2    # -> results/seeds.{json,md}, results/seeds/
-uv run sdi figures                             # -> docs/figures/, light and dark
-uv run sdi figures --web                       # SVG and WebP for web pages -> docs/figures/web/
-uv run sdi gradcam                             # -> docs/figures/gradcam.png
-uv run sdi gradcam --web                       # -> docs/figures/web/gradcam.webp
+uv run sdi figures                             # -> docs/figures/, light and dark, SVG/WebP + PNG
+uv run sdi gradcam                             # -> docs/figures/gradcam.webp
+uv run figkit check docs/figures               # pairs, transparency and file sizes
 uv run sdi robustness                          # -> results/robustness.{json,md}, figure
 uv run sdi benchmark                           # INT8 model, -> results/benchmark.{json,md}
 uv run sdi report --check                      # results/*.md still match results/*.json
@@ -234,8 +233,7 @@ src/sdi/           dataset, preprocessing, baseline, model, training, metrics, O
 tests/             pytest
 cpp/               C++ classifier with a benchmark mode, parity test, CMake, Dockerfile
 results/           metrics, predictions, per-seed results, robustness and benchmark tables
-docs/figures/      README figures, light and dark
-docs/figures/web/  the same figures as SVG and WebP for other web pages
+docs/figures/      README figures, light and dark, transparent for other web pages
 ```
 
 [MODEL_CARD.md](MODEL_CARD.md) summarises intended use, data, metrics and limits of the model.

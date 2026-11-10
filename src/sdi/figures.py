@@ -1,196 +1,41 @@
-"""Figures of the README, rendered from ``results/`` and the dataset.
+"""Figures of the README and of web pages, rendered from ``results/`` and the dataset.
 
-Every figure is written twice, ``<name>.png`` for a light page and ``<name>-dark.png`` for a dark
-one, so the README can pick the right one with ``<picture>``. The colours come from a categorical
-palette whose first three slots were checked for colour-vision-deficiency separation in both
-modes. Lines carry markers and direct labels, so no series is told apart by colour alone.
-
-:data:`WEB` is a second output for web pages. Charts are SVG and photographs WebP, both on a
-transparent background, and every figure is scaled to at most :data:`WEB_WIDTH` inches so that
-its text grows when the page shows it in a wider column.
+The style, the colours and the export come from FigureKit (:mod:`figkit`), the figure style shared
+by all of my repositories. Every figure is written for a light page as ``<name>.<ext>`` and for a
+dark one as ``<name>-dark.<ext>``, on a transparent background. Charts are SVG and PNG
+(:data:`CHART`), photographs WebP and PNG (:data:`PHOTO`). The categorical colours are used in a
+fixed order, and lines carry markers and labels, so no series is told apart by colour alone.
 """
 
 import math
-from collections.abc import Callable, Iterator, Sequence
-from contextlib import contextmanager
-from dataclasses import dataclass, replace
+from collections.abc import Callable, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import matplotlib as mpl
-
-mpl.use("Agg")
-
 import cv2
+import figkit
 import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
+from figkit import Theme
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.figure import Figure
+from matplotlib.ticker import MaxNLocator
 
 from sdi.dataset import CLASSES, Sample
 from sdi.metrics import Report, abbreviate
 from sdi.preprocess import read_gray
 
+Draw = Callable[[Theme], Figure]
 
-@dataclass(frozen=True, slots=True)
-class Theme:
-    """Colours of one page mode."""
-
-    name: str
-    surface: str
-    ink: str
-    secondary: str
-    muted: str
-    grid: str
-    axis: str
-    series: tuple[str, str, str]
-    ramp: tuple[str, ...]
-
-
-LIGHT = Theme(
-    name="light",
-    surface="#ffffff",
-    ink="#0b0b0b",
-    secondary="#52514e",
-    muted="#898781",
-    grid="#e1e0d9",
-    axis="#c3c2b7",
-    series=("#2a78d6", "#eb6834", "#1baf7a"),
-    ramp=("#f4f8fd", "#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"),
-)
-DARK = Theme(
-    name="dark",
-    surface="#0d1117",
-    ink="#f0efec",
-    secondary="#c3c2b7",
-    muted="#898781",
-    grid="#2c2c2a",
-    axis="#383835",
-    series=("#3987e5", "#d95926", "#199e70"),
-    ramp=("#111a26", "#104281", "#184f95", "#1c5cab", "#256abf", "#3987e5", "#6da7ec", "#b7d3f6"),
-)
-THEMES = (LIGHT, DARK)
+CHART = figkit.WEB
+PHOTO = figkit.PHOTO
 
 # Slot of each model in the palette. A model keeps its colour in every figure.
 RESNET, BASELINE, THIRD = 0, 1, 2
 
-
-@contextmanager
-def styled(theme: Theme) -> Iterator[None]:
-    """Matplotlib defaults for the theme: recessive axes, hairline grid, ink text."""
-    with plt.rc_context(
-        {
-            "figure.facecolor": theme.surface,
-            "axes.facecolor": theme.surface,
-            "savefig.facecolor": theme.surface,
-            "axes.edgecolor": theme.axis,
-            "axes.labelcolor": theme.secondary,
-            "axes.titlecolor": theme.ink,
-            "axes.titlesize": 11,
-            "axes.titleweight": "bold",
-            "axes.titlelocation": "left",
-            "axes.labelsize": 9,
-            "axes.spines.top": False,
-            "axes.spines.right": False,
-            "axes.grid": False,
-            "grid.color": theme.grid,
-            "grid.linewidth": 0.8,
-            "xtick.color": theme.muted,
-            "ytick.color": theme.muted,
-            "xtick.labelcolor": theme.secondary,
-            "ytick.labelcolor": theme.secondary,
-            "xtick.labelsize": 8.5,
-            "ytick.labelsize": 8.5,
-            "text.color": theme.ink,
-            "legend.frameon": False,
-            "legend.fontsize": 9,
-            "legend.labelcolor": theme.secondary,
-            "font.family": "DejaVu Sans",
-            "font.size": 9,
-            "lines.linewidth": 2,
-            "lines.markersize": 5,
-        }
-    ):
-        yield
-
-
-@dataclass(frozen=True, slots=True)
-class Output:
-    """How a figure is written.
-
-    Attributes:
-        format: ``png``, ``svg`` or ``webp``.
-        dpi: Resolution of raster formats, ignored when ``pixels`` is set.
-        transparent: Leave the background empty instead of filling it with the theme surface.
-        width: Largest figure width in inches. A wider figure is scaled down to it, which makes
-            its text larger relative to the figure.
-        pixels: Width of a raster image in pixels, for a fixed size independent of the figure.
-    """
-
-    format: str = "png"
-    dpi: float = 150
-    transparent: bool = False
-    width: float | None = None
-    pixels: int | None = None
-
-
-README = Output()
-# 6.4 inches shown in a column of 800 CSS pixels enlarges 9 pt text to about 15 px, and 1600 pixels
-# keep photographs sharp at twice that column width.
-WEB_WIDTH = 6.4
-WEB = Output(format="svg", transparent=True, width=WEB_WIDTH)
-WEB_PHOTO = Output(format="webp", transparent=True, width=WEB_WIDTH, pixels=1600)
-
-
-# Metadata without dates or versions, so that the files only change with their content.
-_SAVE_OPTIONS: dict[str, dict[str, Any]] = {
-    "png": {"metadata": {"Software": None}},
-    "svg": {"metadata": {"Date": None, "Creator": None}},
-    "webp": {"pil_kwargs": {"quality": 88, "method": 6}},
-}
-
-
-def save(figure: Figure, directory: Path, name: str, theme: Theme, output: Output = README) -> Path:
-    """Write the figure as ``name.<format>`` (light) or ``name-dark.<format>`` and close it."""
-    directory.mkdir(parents=True, exist_ok=True)
-    path = directory / f"{name}{'-dark' if theme.name == 'dark' else ''}.{output.format}"
-    width, height = figure.get_size_inches()
-    if output.width is not None and width > output.width:
-        figure.set_size_inches(output.width, height * output.width / width)
-    pad = 0.15
-    dpi = output.dpi
-    if output.pixels is not None:
-        # The saved image is the tight bounding box plus padding, not the whole figure.
-        figure.draw_without_rendering()
-        dpi = output.pixels / (figure.get_tightbbox().width + 2 * pad)
-    figure.savefig(
-        path, dpi=dpi, bbox_inches="tight", pad_inches=pad, **_SAVE_OPTIONS[output.format]
-    )
-    plt.close(figure)
-    return path
-
-
-def render(
-    directory: Path,
-    name: str,
-    draw: Callable[[Theme], Figure],
-    themes: Sequence[Theme] = THEMES,
-    output: Output = README,
-) -> list[Path]:
-    """Draw one figure in every theme and save it."""
-    paths = []
-    for theme in themes:
-        if output.transparent:
-            theme = replace(theme, surface="none")  # noqa: PLW2901
-        with styled(theme), plt.rc_context({"svg.hashsalt": name}):
-            paths.append(save(draw(theme), directory, name, theme, output))
-    return paths
-
-
-def _ink_on(colour: str) -> str:
-    r, g, b = (int(colour[i : i + 2], 16) / 255 for i in (1, 3, 5))
-    return "#0b0b0b" if 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.5 else "#ffffff"
+_SIZE = figkit.tokens()["font"]
 
 
 def _image_axes(ax: Any) -> None:
@@ -200,7 +45,7 @@ def _image_axes(ax: Any) -> None:
         spine.set_visible(False)
 
 
-def samples_figure(samples: Sequence[Sample], per_class: int = 3) -> Callable[[Theme], Figure]:
+def samples_figure(samples: Sequence[Sample], per_class: int = 3) -> Draw:
     """A grid with one column per class and ``per_class`` images in each.
 
     The images are the first of each class in the order given, so the grid is the same on
@@ -220,8 +65,13 @@ def samples_figure(samples: Sequence[Sample], per_class: int = 3) -> Callable[[T
                 ax = axes[row, col]
                 ax.imshow(read_gray(sample.path), cmap="gray", vmin=0, vmax=255)
                 _image_axes(ax)
+            # Two-word names take two lines, so that neighbouring titles do not meet.
             axes[0, col].set_title(
-                CLASSES[col].replace("_", " "), loc="center", fontsize=9.5, color=theme.ink
+                CLASSES[col].replace("_", "\n"),
+                loc="center",
+                fontsize=_SIZE["label"],
+                color=theme.ink,
+                linespacing=1.2,
             )
         figure.subplots_adjust(wspace=0.05, hspace=0.05)
         return figure
@@ -229,12 +79,12 @@ def samples_figure(samples: Sequence[Sample], per_class: int = 3) -> Callable[[T
     return draw
 
 
-def confusion_figure(reports: Sequence[Report]) -> Callable[[Theme], Figure]:
+def confusion_figure(reports: Sequence[Report]) -> Draw:
     """Row-normalised confusion matrices side by side, with the counts in the cells."""
 
     def draw(theme: Theme) -> Figure:
         cmap = LinearSegmentedColormap.from_list(f"seq-{theme.name}", theme.ramp)
-        figure, axes = plt.subplots(1, len(reports), figsize=(4.2 * len(reports), 4.0))
+        figure, axes = plt.subplots(1, len(reports), figsize=(3.2 * len(reports), 3.3))
         for ax, report in zip(np.atleast_1d(axes), reports, strict=True):
             counts = np.asarray(report.confusion)
             rates = counts / counts.sum(axis=1, keepdims=True)
@@ -253,8 +103,9 @@ def confusion_figure(reports: Sequence[Report]) -> Callable[[Theme], Figure]:
                         str(count),
                         ha="center",
                         va="center",
-                        fontsize=9,
-                        color=_ink_on(_hex(cmap(rates[i, j]))),
+                        fontsize=_SIZE["annotation"],
+                        color=figkit.ink_on(figkit.hex_colour(cmap(rates[i, j]))),
+                        fontfamily=figkit.mono(),
                     )
             ax.set_xlabel("predicted")
             ax.set_ylabel("true")
@@ -266,11 +117,7 @@ def confusion_figure(reports: Sequence[Report]) -> Callable[[Theme], Figure]:
     return draw
 
 
-def _hex(rgba: tuple[float, float, float, float]) -> str:
-    return "#" + "".join(f"{round(v * 255):02x}" for v in rgba[:3])
-
-
-def per_class_figure(baseline: Report, model: Report) -> Callable[[Theme], Figure]:
+def per_class_figure(baseline: Report, model: Report) -> Draw:
     """Per-class F1 of the baseline and the model as grouped horizontal bars."""
 
     def draw(theme: Theme) -> Figure:
@@ -280,32 +127,22 @@ def per_class_figure(baseline: Report, model: Report) -> Callable[[Theme], Figur
         height = 0.36
         for offset, report, slot in ((-1, baseline, BASELINE), (1, model, RESNET)):
             values = [c.f1 for c in report.classes]
-            ax.barh(
-                y + offset * (height / 2 + 0.01),
+            # The offset leaves a thin gap between the two bars of a class.
+            bars = ax.barh(
+                y + offset * (height / 2 + 0.02),
                 values,
                 height=height,
                 color=theme.series[slot],
                 label=report.model,
-                edgecolor=theme.surface,
-                linewidth=1,
             )
-            for yi, value in zip(y, values, strict=True):
-                ax.text(
-                    value + 0.01,
-                    yi + offset * (height / 2 + 0.01),
-                    f"{value:.2f}",
-                    va="center",
-                    fontsize=7.5,
-                    color=theme.secondary,
-                )
+            figkit.bar_labels(ax, bars, theme)
         ax.set_yticks(y, names)
         ax.invert_yaxis()
         ax.set_xlim(0, 1.08)
         ax.set_xticks(np.linspace(0, 1, 6))
-        ax.xaxis.grid(True)
-        ax.set_axisbelow(True)
-        ax.tick_params(axis="y", length=0)
-        ax.spines["left"].set_visible(False)
+        ax.spines["bottom"].set_bounds(0, 1)
+        figkit.grid(ax, "x")
+        figkit.category_axis(ax, "y")
         ax.set_xlabel("F1 on the test split")
         ax.set_title("Per-class F1")
         ax.legend(loc="lower right", bbox_to_anchor=(1.0, 1.0), ncol=2, handlelength=1.2)
@@ -315,12 +152,12 @@ def per_class_figure(baseline: Report, model: Report) -> Callable[[Theme], Figur
     return draw
 
 
-def training_figure(histories: dict[int, list[dict[str, float]]]) -> Callable[[Theme], Figure]:
+def training_figure(histories: dict[int, list[dict[str, float]]]) -> Draw:
     """Training loss and validation macro F1 per epoch, one line per seed, in two panels."""
     seeds = sorted(histories)[:3]
 
     def draw(theme: Theme) -> Figure:
-        figure, (loss_ax, f1_ax) = plt.subplots(1, 2, figsize=(8.4, 3.2))
+        figure, (loss_ax, f1_ax) = plt.subplots(1, 2, figsize=(figkit.WEB_WIDTH, 2.9))
         markers = ("o", "s", "^")
         for slot, seed in enumerate(seeds):
             epochs = [h["epoch"] for h in histories[seed]]
@@ -340,6 +177,7 @@ def training_figure(histories: dict[int, list[dict[str, float]]]) -> Callable[[T
             ax.yaxis.grid(True)
             ax.set_axisbelow(True)
             ax.set_xlim(0.5, max(len(h) for h in histories.values()) + 0.5)
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True))
         f1_ax.legend(loc="lower right", handlelength=1.6)
         figure.set_layout_engine("tight", w_pad=3)
         return figure
@@ -357,7 +195,7 @@ class Prediction:
     confidence: float
 
 
-def errors_figure(errors: Sequence[Prediction]) -> Callable[[Theme], Figure]:
+def errors_figure(errors: Sequence[Prediction]) -> Draw:
     """The misclassified test images with their true and predicted classes."""
 
     def draw(theme: Theme) -> Figure:
@@ -365,10 +203,10 @@ def errors_figure(errors: Sequence[Prediction]) -> Callable[[Theme], Figure]:
         for ax, error in zip(np.atleast_1d(axes), errors, strict=True):
             ax.imshow(read_gray(error.path), cmap="gray", vmin=0, vmax=255)
             _image_axes(ax)
-            ax.set_title(error.path.stem, loc="center", fontsize=9, color=theme.ink)
+            ax.set_title(error.path.stem, loc="center", fontsize=_SIZE["label"], color=theme.ink)
             ax.set_xlabel(
                 f"true  {error.label}\npredicted  {error.predicted} ({error.confidence:.0%})",
-                fontsize=8,
+                fontsize=_SIZE["annotation"],
                 color=theme.secondary,
                 linespacing=1.5,
             )
@@ -388,9 +226,7 @@ class Explanation:
     cam: npt.NDArray[np.float32]
 
 
-def gradcam_figure(
-    explanations: Sequence[Explanation], columns: int | None = None
-) -> Callable[[Theme], Figure]:
+def gradcam_figure(explanations: Sequence[Explanation], columns: int | None = None) -> Draw:
     """Each image above its Grad-CAM overlay, one column per image.
 
     With ``columns``, the images wrap into rows of that many, for narrow pages. The map uses
@@ -425,9 +261,12 @@ def gradcam_figure(
                 top.imshow(image, cmap="gray", vmin=0, vmax=255)
                 bottom.imshow(image, cmap="gray", vmin=0, vmax=255)
                 bottom.imshow(item.cam, cmap="inferno", vmin=0, vmax=1, alpha=0.5)
-                top.set_title(item.title, loc="center", fontsize=8.5, color=theme.ink)
+                top.set_title(item.title, loc="center", fontsize=_SIZE["tick"], color=theme.ink)
                 bottom.set_xlabel(
-                    item.caption, fontsize=7.5, color=theme.secondary, linespacing=1.4
+                    item.caption,
+                    fontsize=_SIZE["annotation"],
+                    color=theme.secondary,
+                    linespacing=1.4,
                 )
             band.set_facecolor(theme.surface)
             band.subplots_adjust(
@@ -438,9 +277,7 @@ def gradcam_figure(
     return draw
 
 
-def robustness_figure(
-    data: dict[str, Any], columns: int | None = None
-) -> Callable[[Theme], Figure]:
+def robustness_figure(data: dict[str, Any], columns: int | None = None) -> Draw:
     """Accuracy over corruption level, one panel per corruption, one line per model.
 
     ``data`` is ``results/robustness.json``. The INT8 line is dashed with its own marker, because
@@ -474,7 +311,7 @@ def robustness_figure(
                     label=name,
                 )
             ax.axhline(1 / 6, color=theme.muted, linestyle=":", linewidth=1, zorder=0)
-            ax.set_title(panel["name"], fontsize=10)
+            ax.set_title(panel["name"], fontsize=_SIZE["label"] + 1)
             ax.set_xticks(list(levels), [f"{s:g}" for s in panel["strengths"]])
             ax.set_xlabel(panel["parameter"])
             ax.set_ylim(0, 1.03)
@@ -483,7 +320,7 @@ def robustness_figure(
         for row in grid:
             row[0].set_ylabel("test accuracy")
         first = axes[0]
-        first.text(0, 1 / 6 + 0.02, "chance", fontsize=7.5, color=theme.muted)
+        first.text(0, 1 / 6 + 0.02, "chance", fontsize=_SIZE["annotation"], color=theme.secondary)
         handles, labels = first.get_legend_handles_labels()
         for ax in spare:
             ax.axis("off")

@@ -141,6 +141,16 @@ wheels = [
 ]
 
 [[package]]
+name = "figkit"
+version = "0.1.1"
+source = { git = "https://github.com/BenBotsch/FigureKit?rev=v0.1.1#999dec5f9195caaf84f2a76da95cafbc6975aaf1" }
+dependencies = [
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "pillow" },
+]
+
+[[package]]
 name = "filelock"
 version = "4.2.6"
 source = { registry = "https://pypi.org/simple" }
@@ -777,7 +787,6 @@ version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "httpx" },
-    { name = "matplotlib" },
     { name = "numpy" },
     { name = "onnx" },
     { name = "onnxruntime" },
@@ -798,11 +807,13 @@ dev = [
     { name = "pytest" },
     { name = "ruff" },
 ]
+figures = [
+    { name = "figkit" },
+]
 
 [package.metadata]
 requires-dist = [
     { name = "httpx", specifier = ">=0.28" },
-    { name = "matplotlib", specifier = ">=3.9" },
     { name = "numpy", specifier = ">=2.0" },
     { name = "onnx", specifier = ">=1.17" },
     { name = "onnxruntime", specifier = ">=1.20" },
@@ -823,6 +834,7 @@ dev = [
     { name = "pytest", specifier = ">=8.3" },
     { name = "ruff", specifier = ">=0.11" },
 ]
+figures = [{ name = "figkit", git = "https://github.com/BenBotsch/FigureKit?rev=v0.1.1" }]
 
 [[package]]
 name = "sympy"
