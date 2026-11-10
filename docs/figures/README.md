@@ -8,8 +8,9 @@ can be used unchanged on other web pages.
   because the text colour differs. The background is transparent.
 - Charts (`confusion`, `per_class_f1`, `training`, `robustness`) are SVG and stay sharp at any
   width. A transparent PNG with the same name is the fallback for places without SVG.
-- Photographs (`samples`, `errors`, `gradcam`) are WebP, with a transparent PNG as fallback. Both
-  are 1600 pixels wide, which is sharp on high-density screens in a column of up to 800 CSS pixels.
+- Photographs (`samples`, `errors`, `gradcam`) are WebP, with a transparent PNG as fallback. All
+  raster files are rendered at 250 dpi, so a full-width figure is about 1600 pixels wide and sharp
+  on high-density screens in a column of up to 800 CSS pixels.
 - Each figure is at most 6.4 inches wide, so its text is about 15 pixels high in a column of 800
   CSS pixels. Grad-CAM wraps into two rows and the robustness panels into a 3 x 2 grid.
 - `uv run figkit check docs/figures` checks the pairs, the transparency and the file sizes; CI runs
