@@ -1,12 +1,15 @@
+import json
 from pathlib import Path
 
 import cv2
 import figkit
 import numpy as np
+import pytest
 from figkit.check import check
+from figkit.language import speaking
 from PIL import Image
 
-from sdi import figures
+from sdi import cli, figures
 from sdi.dataset import CLASSES, Sample
 from sdi.metrics import evaluate
 
@@ -19,7 +22,7 @@ def _image(tmp_path: Path) -> Path:
 
 def _explanations(tmp_path: Path, count: int) -> list[figures.Explanation]:
     cam = np.eye(8, dtype=np.float32)
-    return [figures.Explanation(_image(tmp_path), "a", "p = 1", cam)] * count
+    return [figures.Explanation(_image(tmp_path), "crazing", "crazing", 1.0, cam)] * count
 
 
 def _robustness(panels: int) -> dict[str, object]:
@@ -100,3 +103,80 @@ def test_robustness_legend_takes_the_free_cell_of_the_grid(tmp_path: Path) -> No
         "ResNet18 INT8",
         "HOG + linear SVM",
     ]
+
+
+def test_robustness_names_its_panels_and_models_in_german() -> None:
+    accuracy = {"ResNet18": [1.0, 0.5], "HOG + linear SVM": [0.6, 0.3]}
+    panel = {"name": "Gaussian noise", "parameter": "offset", "strengths": [0, 0.5]}
+    data = {"models": list(accuracy), "robustness": [{**panel, "accuracy": accuracy}] * 4}
+    draw = figures.robustness_figure(data, columns=3)
+
+    with speaking("de"), figkit.styled(figkit.LIGHT):
+        figure = draw(figkit.LIGHT)
+    ax, spare = figure.get_axes()[0], figure.get_axes()[4]
+    legend = spare.get_legend()
+
+    assert ax.get_title(loc="left") == "Gaußsches Rauschen"
+    assert ax.get_xlabel() == "Versatz"
+    assert [t.get_text() for t in ax.get_xticklabels()] == ["0", "0,5"]
+    assert legend is not None
+    assert [t.get_text() for t in legend.get_texts()] == ["ResNet18", "HOG + lineare SVM"]
+
+
+def test_gradcam_writes_the_column_texts_in_the_language_drawn(tmp_path: Path) -> None:
+    cam = np.eye(8, dtype=np.float32)
+    right = figures.Explanation(_image(tmp_path), "pitted_surface", "pitted_surface", 0.987, cam)
+    wrong = figures.Explanation(_image(tmp_path), "crazing", "rolled-in_scale", 0.6, cam)
+
+    with speaking("de"):
+        assert (right.title(), right.caption()) == ("Pitted Surface", "p = 0,99")
+        assert wrong.title() == "falsch erkannt"
+        assert wrong.caption() == "Crazing\n→ Rolled-in Scale"
+    assert (right.title(), wrong.title()) == ("pitted surface", "misclassified")
+
+
+def test_every_text_exists_in_each_language() -> None:
+    keys = {code: set(texts) for code, texts in figures.TEXT.items()}
+
+    assert set(keys) == set(figures.LANGUAGES)
+    assert keys["en"] == keys["de"]
+    assert set(figures.CLASS_LABELS["de"]) == set(CLASSES)
+
+
+def test_captions_write_numbers_as_in_their_language() -> None:
+    labels = list(range(len(CLASSES)))
+    model = evaluate("ResNet18", "test", CLASSES, labels * 3, labels * 3)
+    baseline = evaluate("HOG + linear SVM", "test", CLASSES, labels * 3, labels[::-1] * 3)
+
+    captions = figures.confusion_captions(baseline, model)
+
+    assert captions["en"].title == "ResNet18 misclassifies 0 of 18 test images, the baseline 18"
+    assert "HOG + lineare SVM mit Accuracy 0,000" in captions["de"].alt
+    assert "Accuracy 1,000" in captions["de"].alt
+
+
+def test_page_figures_come_per_language_with_their_texts_in_a_manifest(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    results = Path("results")
+    monkeypatch.setattr(cli, "RESULTS", results.resolve())
+    monkeypatch.setattr(cli, "PAGE", tmp_path)
+    histories = cli._histories()
+    report = cli._load_report("resnet18")
+    for name, draw in (
+        ("training", figures.training_figure(histories)),
+        ("confusion", figures.confusion_figure([cli._load_report("baseline"), report])),
+    ):
+        cli._write_page(name, draw)
+
+    cli._write_manifest()
+
+    manifest = json.loads((tmp_path / "figures.json").read_text(encoding="utf-8"))
+    entries = {e["name"]: e for e in manifest["figures"]}
+    assert set(manifest["languages"]) == set(figures.LANGUAGES)
+    # Only the figures on disk: the others are written by their own commands.
+    assert set(entries) == {"training", "confusion"}
+    assert entries["confusion"]["files"]["de"]["dark"] == "confusion.de-dark.svg"
+    assert "Testbildern" in entries["confusion"]["title"]["de"]
+    assert all(entries["training"]["alt"][code] for code in figures.LANGUAGES)
+    assert check(tmp_path) == []

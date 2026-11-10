@@ -36,6 +36,8 @@ DATA = Path("data/neu-det")
 RUNS = Path("runs")
 RESULTS = Path("results")
 FIGURES = Path("docs/figures")
+# Figures without their title per language for the portfolio, with their texts in figures.json.
+PAGE = FIGURES / "page"
 
 
 def write_text(path: Path, text: str) -> None:
@@ -163,6 +165,76 @@ def _load_report(name: str) -> Report:
     return Report.from_dict(json.loads((RESULTS / f"{name}.json").read_text(encoding="utf-8")))
 
 
+def _histories() -> dict[int, list[dict[str, float]]]:
+    return {
+        int(d["seed"]): d["history"]
+        for d in (
+            json.loads(p.read_text(encoding="utf-8"))
+            for p in sorted((RESULTS / "seeds").glob("seed*.json"))
+        )
+    }
+
+
+def _predictions() -> list[dict[str, Any]]:
+    predictions: list[dict[str, Any]] = json.loads(
+        (RESULTS / "resnet18_predictions.json").read_text(encoding="utf-8")
+    )
+    return predictions
+
+
+def _gradcam_choice(predictions: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    """The first correct test image of each class, then every misclassified one."""
+    correct: dict[str, dict[str, Any]] = {}
+    for p in predictions:
+        if p["label"] == p["predicted"]:
+            correct.setdefault(p["label"], p)
+    chosen = [correct[c] for c in CLASSES if c in correct]
+    return chosen + [p for p in predictions if p["label"] != p["predicted"]]
+
+
+def _write_manifest() -> None:
+    """Write ``page/figures.json`` for every page figure that is on disk, with its texts."""
+    import figkit  # noqa: PLC0415
+
+    from sdi import figures  # noqa: PLC0415
+
+    baseline, resnet = _load_report("baseline"), _load_report("resnet18")
+    chosen = _gradcam_choice(_predictions())
+    wrong = sum(p["label"] != p["predicted"] for p in chosen)
+    robustness = json.loads((RESULTS / "robustness.json").read_text(encoding="utf-8"))
+    pages = {
+        "confusion": (figures.confusion_captions(baseline, resnet), figkit.SVG),
+        "per_class_f1": (figures.per_class_captions(baseline, resnet), figkit.SVG),
+        "training": (figures.training_captions(_histories()), figkit.SVG),
+        "gradcam": (figures.gradcam_captions(len(chosen), wrong), figures.PHOTO[0]),
+        "robustness": (figures.robustness_captions(robustness), figkit.SVG),
+    }
+    entries = []
+    for name, (captions, output) in pages.items():
+        try:
+            entries.append(figkit.page_entry(PAGE, name, captions, output))
+        except FileNotFoundError as error:
+            # Grad-CAM needs the trained model, so `sdi figures` alone may not have written it.
+            print(f"skipped {name} in the manifest: {error}")
+    print(f"wrote {figkit.write_manifest(PAGE, entries)}")
+
+
+def _write_page(name: str, draw: Any, outputs: Sequence[Any] | None = None) -> None:
+    """Write ``name`` without its title in each language, for the portfolio.
+
+    The texts go into ``figures.json`` with :func:`_write_manifest`, which reads the files back.
+    """
+    import figkit  # noqa: PLC0415
+
+    from sdi import figures  # noqa: PLC0415
+
+    for code in figures.LANGUAGES:
+        for path in figkit.render(
+            PAGE, name, draw, outputs or (figkit.SVG,), language=code, headless=True
+        ):
+            print(f"wrote {path}")
+
+
 def _figures(data: Path) -> None:
     # Imported here so that the other commands do not load matplotlib.
     import figkit  # noqa: PLC0415
@@ -171,14 +243,7 @@ def _figures(data: Path) -> None:
 
     test = load_split(data, "test")
     baseline, resnet = _load_report("baseline"), _load_report("resnet18")
-    histories = {
-        int(d["seed"]): d["history"]
-        for d in (
-            json.loads(p.read_text(encoding="utf-8"))
-            for p in sorted((RESULTS / "seeds").glob("seed*.json"))
-        )
-    }
-    predictions = json.loads((RESULTS / "resnet18_predictions.json").read_text(encoding="utf-8"))
+    histories = _histories()
     errors = [
         figures.Prediction(
             data / "images" / "test" / p["image"],
@@ -186,7 +251,7 @@ def _figures(data: Path) -> None:
             p["predicted"],
             max(p["probabilities"]),
         )
-        for p in predictions
+        for p in _predictions()
         if p["label"] != p["predicted"]
     ]
     robustness = json.loads((RESULTS / "robustness.json").read_text(encoding="utf-8"))
@@ -202,6 +267,10 @@ def _figures(data: Path) -> None:
     for name, (draw, outputs) in jobs.items():
         for path in figkit.render(FIGURES, name, draw, outputs):
             print(f"wrote {path}")
+    # The portfolio shows the charts but not the dataset photographs of samples and errors.
+    for name in ("confusion", "per_class_f1", "training", "robustness"):
+        _write_page(name, jobs[name][0])
+    _write_manifest()
 
 
 def _gradcam(data: Path, run_dir: Path) -> None:
@@ -212,33 +281,24 @@ def _gradcam(data: Path, run_dir: Path) -> None:
 
     model = load(run_dir / "model.pt")
     by_name = {s.path.name: s for s in load_split(data, "test")}
-    predictions = json.loads((RESULTS / "resnet18_predictions.json").read_text(encoding="utf-8"))
-    correct: dict[str, dict[str, Any]] = {}
-    for p in predictions:
-        if p["label"] == p["predicted"]:
-            correct.setdefault(p["label"], p)
-    chosen = [correct[c] for c in CLASSES if c in correct]
-    chosen += [p for p in predictions if p["label"] != p["predicted"]]
     explanations = []
-    for p in chosen:
+    for p in _gradcam_choice(_predictions()):
         sample = by_name[p["image"]]
         tensor = torch.from_numpy(to_tensor(read_gray(sample.path)))[None]
-        wrong = p["label"] != p["predicted"]
         explanations.append(
             figures.Explanation(
                 path=sample.path,
-                title=("misclassified" if wrong else p["label"].replace("_", " ")),
-                caption=(
-                    f"{p['label']}\n→ {p['predicted']}"
-                    if wrong
-                    else f"p = {max(p['probabilities']):.2f}"
-                ),
+                label=p["label"],
+                predicted=p["predicted"],
+                probability=max(p["probabilities"]),
                 cam=grad_cam(model, tensor, CLASSES.index(p["predicted"])),
             )
         )
     draw = figures.gradcam_figure(explanations, columns=5)
     for path in figkit.render(FIGURES, "gradcam", draw, figures.PHOTO):
         print(f"wrote {path}")
+    _write_page("gradcam", draw, (figures.PHOTO[0],))
+    _write_manifest()
 
 
 def _megabytes(path: Path) -> float:
@@ -342,6 +402,8 @@ def _robustness(data: Path, run_dir: Path) -> None:
     draw = figures.robustness_figure(result, columns=3)
     for path in figkit.render(FIGURES, "robustness", draw, figures.CHART):
         print(f"wrote {path}")
+    _write_page("robustness", draw)
+    _write_manifest()
 
 
 def _parser() -> argparse.ArgumentParser:

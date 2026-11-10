@@ -14,8 +14,9 @@ can be used unchanged on other web pages.
 - Every figure has the same 6.4 inch canvas (460.8 pt as SVG), so text has the same size in all of
   them, about 15 pixels in a column of 800 CSS pixels. Grad-CAM wraps into two rows and the
   robustness panels into a 3 x 2 grid.
-- `uv run figkit check docs/figures` checks the pairs, the transparency, the canvas width and the
-  file sizes; CI runs it on every push.
+- `uv run figkit check docs/figures docs/figures/page` checks the pairs, the transparency, the
+  canvas width, text below 8 pt and the file sizes, and in `page/` the languages and the manifest;
+  CI runs it on every push.
 
 Scale the images with the column, for example with `width: 100%; height: auto`.
 
@@ -26,6 +27,26 @@ Scale the images with the column, for example with `width: 100%; height: auto`.
        style="width: 100%; height: auto">
 </picture>
 ```
+
+## Page files for a website
+
+`page/` holds the charts and `gradcam` without their title, because the page sets the title as
+text. `samples` and `errors` are not there. Each figure exists in English and German, for a light
+and a dark page:
+
+```text
+page/<name>.en.svg        English, light page (gradcam: .webp)
+page/<name>.en-dark.svg   English, dark page
+page/<name>.de.svg        German, light page
+page/<name>.de-dark.svg   German, dark page
+page/figures.json         title, subtitle, alt text and files per language, size in pt
+```
+
+German figures write numbers as `0,983` and `1.500` and keep the NEU-DET class names in English.
+The texts in `figures.json` are computed from the same results as the figures, so a page reads its
+title, caption and alt text from there. The subtitle of `gradcam` is the attribution below.
+`sdi figures` writes the charts, `sdi gradcam` the Grad-CAM figure; each rewrites the manifest for
+the files on disk.
 
 ## Attribution
 

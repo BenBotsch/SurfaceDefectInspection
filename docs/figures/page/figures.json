@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "languages": [
+    "de",
+    "en"
+  ],
+  "figures": [
+    {
+      "name": "confusion",
+      "title": {
+        "en": "ResNet18 misclassifies 3 of 180 test images, the baseline 64",
+        "de": "Das ResNet18 klassifiziert 3 von 180 Testbildern falsch, die Baseline 64"
+      },
+      "subtitle": {
+        "en": "Row-normalised confusion matrices on the test split, rows are the true class, columns the predicted one.",
+        "de": "Zeilennormierte Konfusionsmatrizen auf der Testaufteilung, Zeilen sind die wahre Klasse, Spalten die vorhergesagte."
+      },
+      "alt": {
+        "en": "Two row-normalised confusion matrices for the six classes: HOG + linear SVM with accuracy 0.644 and many entries off the diagonal, ResNet18 with accuracy 0.983 and 3 images off the diagonal.",
+        "de": "Zwei zeilennormierte Konfusionsmatrizen für die sechs Klassen: HOG + lineare SVM mit Accuracy 0,644 und vielen Einträgen neben der Diagonale, ResNet18 mit Accuracy 0,983 und 3 Bildern neben der Diagonale."
+      },
+      "files": {
+        "en": {
+          "light": "confusion.en.svg",
+          "dark": "confusion.en-dark.svg",
+          "width": 460.8,
+          "height": 260.4
+        },
+        "de": {
+          "light": "confusion.de.svg",
+          "dark": "confusion.de-dark.svg",
+          "width": 460.8,
+          "height": 260.4
+        }
+      }
+    },
+    {
+      "name": "per_class_f1",
+      "title": {
+        "en": "ResNet18 gains most on pitted surface",
+        "de": "Das ResNet18 gewinnt am meisten bei Pitted Surface"
+      },
+      "subtitle": {
+        "en": "F1 per class on the test split, largest gain on top.",
+        "de": "F1 je Klasse auf der Testaufteilung, der größte Gewinn oben."
+      },
+      "alt": {
+        "en": "Dumbbell chart of the F1 per class. HOG + linear SVM ranges from 0.42 for pitted surface to 0.84 for scratches, ResNet18 from 0.95 to 1.00.",
+        "de": "Hanteldiagramm mit dem F1 je Klasse. HOG + lineare SVM reicht von 0,42 für Pitted Surface bis 0,84 für Scratches, ResNet18 von 0,95 bis 1,00."
+      },
+      "files": {
+        "en": {
+          "light": "per_class_f1.en.svg",
+          "dark": "per_class_f1.en-dark.svg",
+          "width": 460.8,
+          "height": 239.8
+        },
+        "de": {
+          "light": "per_class_f1.de.svg",
+          "dark": "per_class_f1.de-dark.svg",
+          "width": 460.8,
+          "height": 239.8
+        }
+      }
+    },
+    {
+      "name": "training",
+      "title": {
+        "en": "Every seed reaches its best validation F1 by epoch 4",
+        "de": "Jeder Seed erreicht seinen besten Validierungs-F1 bis Epoche 4"
+      },
+      "subtitle": {
+        "en": "Mean of 3 seeds as a line, lowest to highest seed as a band.",
+        "de": "Mittel von 3 Seeds als Linie, niedrigster bis höchster Seed als Band."
+      },
+      "alt": {
+        "en": "Two line charts over 15 epochs for 3 seeds: the training loss on a log scale falls from 0.17 to 0.0030, the validation macro F1 reaches 1.000.",
+        "de": "Zwei Liniendiagramme über 15 Epochen für 3 Seeds: Der Trainingsverlust auf logarithmischer Skala fällt von 0,17 auf 0,0030, der Validierungs-Macro-F1 erreicht 1,000."
+      },
+      "files": {
+        "en": {
+          "light": "training.en.svg",
+          "dark": "training.en-dark.svg",
+          "width": 460.8,
+          "height": 230.3
+        },
+        "de": {
+          "light": "training.de.svg",
+          "dark": "training.de-dark.svg",
+          "width": 460.8,
+          "height": 230.3
+        }
+      }
+    },
+    {
+      "name": "gradcam",
+      "title": {
+        "en": "Where ResNet18 looks",
+        "de": "Worauf das ResNet18 schaut"
+      },
+      "subtitle": {
+        "en": "Images: NEU surface defect database (K. Song and Y. Yan, 2013), cleaned release KeenForgeAI/NEU-DET-corrected, CC BY 4.0. Downsized, Grad-CAM overlays added.",
+        "de": "Bilder: NEU surface defect database (K. Song und Y. Yan, 2013), bereinigte Fassung KeenForgeAI/NEU-DET-corrected, CC BY 4.0. Verkleinert und mit Grad-CAM überlagert."
+      },
+      "alt": {
+        "en": "9 test images from NEU-DET, each above the same image with its Grad-CAM map: one correctly classified image per class with its probability and the 3 misclassified images with their true and predicted class.",
+        "de": "9 Testbilder aus NEU-DET, jeweils über derselben Aufnahme mit ihrer Grad-CAM-Karte: je ein richtig erkanntes Bild pro Klasse mit seiner Wahrscheinlichkeit und die 3 falsch erkannten Bilder mit wahrer und vorhergesagter Klasse."
+      },
+      "files": {
+        "en": {
+          "light": "gradcam.en.webp",
+          "dark": "gradcam.en-dark.webp",
+          "width": 460.8,
+          "height": 461.1
+        },
+        "de": {
+          "light": "gradcam.de.webp",
+          "dark": "gradcam.de-dark.webp",
+          "width": 460.8,
+          "height": 461.1
+        }
+      }
+    },
+    {
+      "name": "robustness",
+      "title": {
+        "en": "Under corruption, ResNet18 falls from 0.983 to as low as 0.233",
+        "de": "Unter Bildstörungen fällt das ResNet18 von 0,983 auf bis zu 0,233"
+      },
+      "subtitle": {
+        "en": "Test accuracy over 5 levels of 5 corruptions, the first level is the unchanged image.",
+        "de": "Test-Accuracy über 5 Stufen von 5 Bildstörungen, die erste Stufe ist das unveränderte Bild."
+      },
+      "alt": {
+        "en": "5 line charts, one each for Gaussian noise, Gaussian blur, brightness, contrast and JPEG, with the test accuracy of HOG + linear SVM, ResNet18 and ResNet18 INT8 over 5 levels. Every curve ends lower than it starts, ResNet18 from 0.983 to as low as 0.233.",
+        "de": "5 Liniendiagramme, je eines für Gaußsches Rauschen, Gaußsche Unschärfe, Helligkeit, Kontrast und JPEG, mit der Test-Accuracy von HOG + lineare SVM, ResNet18 und ResNet18 INT8 über 5 Stufen. Jede Kurve endet tiefer, als sie beginnt, das ResNet18 von 0,983 auf bis zu 0,233."
+      },
+      "files": {
+        "en": {
+          "light": "robustness.en.svg",
+          "dark": "robustness.en-dark.svg",
+          "width": 460.8,
+          "height": 434.2
+        },
+        "de": {
+          "light": "robustness.de.svg",
+          "dark": "robustness.de-dark.svg",
+          "width": 460.8,
+          "height": 434.2
+        }
+      }
+    }
+  ]
+}
