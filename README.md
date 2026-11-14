@@ -6,6 +6,8 @@
 ![ONNX opset 13](https://img.shields.io/badge/ONNX-opset%2013-005ced)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
+The case study with context and results is on [my portfolio](https://portfolio.bennybotsch.workers.dev/en/projects/surface-defect-inspection/).
+
 Classifies hot-rolled steel surface defects on the NEU surface defect database (NEU-DET) into six
 classes, from a classical HOG + linear SVM baseline to a fine-tuned ResNet18. The model is exported
 to ONNX and runs in three places that must agree: PyTorch, ONNX Runtime and a small C++ classifier
